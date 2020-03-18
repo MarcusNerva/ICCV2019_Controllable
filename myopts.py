@@ -3,12 +3,24 @@ import argparse
 def parse_opt():
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--data_path', type=str, default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
+    # parser.add_argument('--data_path', type=str,
+    #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
     #                     help='the path of the data')
-    parser.add_argument('--data_path', type=str, default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
+    parser.add_argument('--data_path', type=str,
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data',
                         help='the path of the data')
-    parser.add_argument('--start_from', type=str, default='./checkpoints/',
+    # parser.add_argument('--start_from', type=str,
+    #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/checkpoints',
+    #                     help='continue training from saved model at this path')
+    parser.add_argument('--start_from', type=str,
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/checkpoints',
                         help='continue training from saved model at this path')
+    # parser.add_argument('--checkpoint_path', type=str,
+    #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/checkpoints',
+    #                     help='the path of saving a trained model and it\'s information')
+    parser.add_argument('--checkpoint_path', type=str,
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/checkpoints',
+                        help='the path of saving a trained model and it\'s information')
     parser.add_argument('--feat_K', type=int, default=30,
                         help=' the number of feats(frames) take out from a video')
 
@@ -33,7 +45,6 @@ def parse_opt():
     parser.add_argument('--drop_probability', type=float, default=0.5, help='strength of dropout')
     parser.add_argument('--beam_size', type=int, default=5, help='beam size')
     parser.add_argument('--save_checkpoint_every', type=int, default=50, help='save a model every x iteration')
-    parser.add_argument('--checkpoint_path', type=str, default='./checkpoints/', help='the path of saving a trained model and it\'s infomation')
     parser.add_argument('--reward_type', type=str, default='CIDEr', help='use BLEU/METEOR/ROUGE/CIDEr as reward')
     parser.add_argument('--patience', type=int, default=30, help='the early stop threshold which designed for solving the score stopped raising')
     parser.add_argument('--model_name', type=str, default='pos', help='name of the model under using')
