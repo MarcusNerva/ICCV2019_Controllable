@@ -27,7 +27,7 @@ def clip_gradient(optimizer, grad_clip):
             if param.grad is None: continue
             param.grad.data.clamp_(-grad_clip, grad_clip)
 
-def train(opt):
+def train(opt, device):
     vis = Visualizer(env='picture of loss')
     opt.vocab_size = get_nwords(opt.data_path)
     opt.category_size = get_nclasses(opt.data_path)
@@ -99,6 +99,7 @@ def train(opt):
             feats0 = feats0.to(device)
             feats1 = feats1.to(device)
             feat_mask = feat_mask.to(device)
+            class_masks = class_masks.to(device)
             # lens = lens.to(device)
             # gts = gts.to(device)
             # video_id = video_id.to(device)
@@ -182,5 +183,6 @@ def train(opt):
 
 if __name__ == '__main__':
     opt = myopts.parse_opt()
-    train(opt)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    train(opt, device)
     pass

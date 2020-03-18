@@ -8,7 +8,7 @@ from models.gate import *
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class Encoder_two_fc(nn.Module):
     def __init__(self, opt):
@@ -33,13 +33,14 @@ class Encoder_two_fc(nn.Module):
         self.gate_rgb = Gate(seed=opt.seed, source_size=self.rnn_size, target_size=self.rnn_size, drop_lm=self.drop_probability)
         self.gate_opfl = Gate(seed=opt.seed, source_size=self.rnn_size, target_size=self.rnn_size, drop_lm=self.drop_probability)
         self.fuse = Fusion(seed=opt.seed, feat1_size=self.rnn_size, feat2_size=self.rnn_size, output_size=self.rnn_size, drop_lm=self.drop_probability, activity_fn=opt.activity_fn)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def init_hidden(self, batch_size):
         h_size = (batch_size, self.rnn_size)
         h_0 = torch.FloatTensor(*h_size).zero_()
         c_0 = torch.FloatTensor(*h_size).zero_()
-        # h_0.to(device)
-        # c_0.to(device)
+        h_0.to(self.device)
+        c_0.to(self.device)
         # print('h_0.device is ', h_0.device)
         # print('c_0.device is ', c_0.device)
         return (h_0, c_0)
@@ -62,12 +63,15 @@ class Encoder_two_fc(nn.Module):
         # feat1_init_state = feat1_init_state.to(device)
 
         out_feats0, out_feats1 = [], []
-        h0, c0 = feat0_init_state[0].to(device), feat0_init_state[1].to(device)
-        h1, c1 = feat1_init_state[0].to(device), feat1_init_state[1].to(device)
+        # h0, c0 = feat0_init_state[0].to(self.device), feat0_init_state[1].to(self.device)
+        # h1, c1 = feat1_init_state[0].to(self.device), feat1_init_state[1].to(self.device)
+
+        h0, c0 = feat0_init_state[0], feat0_init_state[1]
+        h1, c1 = feat1_init_state[0], feat1_init_state[1]
         print('h0.device is ', h0.device)
         print('c0.device is ', c0.device)
-        print('h1.device is ', h1.device)
-        print('c1.device is ', c1.device)
+        # print('h1.device is ', h1.device)
+        # print('c1.device is ', c1.device)
 
         for i in range(length):
             input_0 = embed_feat0[:, i, :]

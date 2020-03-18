@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 import myopts
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+# device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class CaptionModel(nn.Module):
     def __init__(self):
@@ -88,7 +88,7 @@ class CaptionModel(nn.Module):
 
             it = beam_seq[:, t]
             feat_ = feat.expand(it.size(0), feat.size(0), feat.size(1))
-            logprobs, state = self.get_logprobs_state(it.to(device), feat_, state)
+            logprobs, state = self.get_logprobs_state(it.to(self.device), feat_, state)
 
         done_beams = sorted(done_beams, key= lambda x: -x['sum_probability'])[:beam_size]
         return done_beams
@@ -117,6 +117,7 @@ class pos_generator(CaptionModel):
 
         self.embed = nn.Embedding(self.category_size, self.word_embed_size)
         self.logit = nn.Linear(self.rnn_size, self.category_size)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.init_weights()
 
@@ -130,7 +131,7 @@ class pos_generator(CaptionModel):
         feat_ = torch.from_numpy(np.sum(feat.cpu().data.numpy(), axis=1, dtype=np.float32))
         mask_ = torch.from_numpy(np.sum(feat_mask.cpu().data.numpy(), axis=1, dtype=np.float32))
         feat_mean = (feat_ / mask_.unsqueeze(-1)).unsqueeze(0)
-        feat_mean = feat_mean.to(device)
+        feat_mean = feat_mean.to(self.device)
         state0 = (self.video_embed_h0(feat_mean), self.video_embed_c0(feat_mean))
         state1 = (self.video_embed_h1(feat_mean), self.video_embed_c1(feat_mean))
         return [state0, state1]
@@ -139,7 +140,7 @@ class pos_generator(CaptionModel):
         feat_ = torch.from_numpy(np.sum(feat.cpu().data.numpy(), axis=1, dtype=np.float32))
         mask_ = torch.from_numpy(np.sum(feat_mask.cpu().data.numpy(), axis=1, dtype=np.float32))
         feat_mean = (feat_ / mask_.unsqueeze(-1)).unsqueeze(0)
-        feat_mean = feat_mean.to(device)
+        feat_mean = feat_mean.to(self.device)
         state0 = (self.video_embed_h0(feat_mean), self.video_embed_c0(feat_mean))
         return state0
 
@@ -177,7 +178,7 @@ class pos_generator(CaptionModel):
         batch_size = it.size(0)
         xt = self.embed(it)
         xt_mask = torch.ones([batch_size, 1]).float()
-        xt_mask = xt_mask.to(device)
+        xt_mask = xt_mask.to(self.device)
 
         output, state = self.decoder(xt, xt_mask, feats, state)
         logprobs = torch.log_softmax(self.logit(output), dim=1)
@@ -200,7 +201,7 @@ class pos_generator(CaptionModel):
             state = self.init_hidden(feat, feat_mask)
 
             it = feats.data.new(beam_size).long().zero_()
-            xt = self.embed(it).to(device)
+            xt = self.embed(it).to(self.device)
             xt_mask = torch.ones([beam_size, 1]).float()
             output, state = self.decoder(xt, xt_mask, feat, state)
             logprobs = torch.log_softmax(self.logit(output), dim=1)
@@ -241,7 +242,7 @@ class pos_generator(CaptionModel):
                     prob_prev = torch.exp(logprobs.data).cpu()
                 else:
                     prob_prev = torch.exp(torch.div(logprobs.data, temperature)).cpu()
-                it = torch.multinomial(prob_prev, 1).to(device)
+                it = torch.multinomial(prob_prev, 1).to(self.device)
                 sampleLogprobs = logprobs.gather(1, it)
 
             xt = self.embed(it)
@@ -260,7 +261,7 @@ class pos_generator(CaptionModel):
                 xt_mask = torch.ones([batch_size, 1]).float()
             else:
                 xt_mask = unfinished.unsqueeze(-1).float()
-            xt_mask.to(device)
+            xt_mask.to(self.device)
             output, state = self.decoder(xt, feats, xt_mask, state)
             logprobs = torch.log_softmax(self.logit(output), dim=1)
             collect_states.append(state[0][-1])
