@@ -55,7 +55,7 @@ def parse_opt():
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay')
     parser.add_argument('--optim', type=str, default='adam', help='the optimizer\'s type: adam or adadelta')
     # parser.add_argument('--visualize_every', type=int, default=3, help='show us loss every x iteration')
-    parser.add_argument('--visualize_every', type=int, default=30, help='show us loss every x iteration')
+    parser.add_argument('--visualize_every', type=int, default=10, help='show us loss every x iteration')
 
 
 

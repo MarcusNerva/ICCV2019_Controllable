@@ -133,10 +133,11 @@ def train(opt, device):
             # end = time.time()
             loss_meter.add(train_loss.item())
 
-            if (i + 1) % opt.visualize_every:
+            if (i + 1) % opt.visualize_every == 0:
                 vis.plot('loss', loss_meter.value()[0])
 
             if (i + 1) % opt.save_checkpoint_every == 0:
+                print('i am saving!!')
                 eval_kwargs = {}
                 eval_kwargs.update(vars(opt))
                 val_loss = eval_extract.eval_and_extract(model, classify_crit, valid_dataset, device, 'validation', eval_kwargs, False)
