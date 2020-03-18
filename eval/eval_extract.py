@@ -9,7 +9,7 @@ from data.dataset import *
 from torch.utils.data import DataLoader
 from models.pos_generator import *
 
-def eval_and_extract(model, classify_crit, dataset, dataset_name='train' , eval_kwargs={}, extract_pos=False):
+def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train' , eval_kwargs={}, extract_pos=False):
     lang_eval = eval_kwargs.get('language_eval', 0)
     beam_size = eval_kwargs.get('beam_size', 1)
     weight_class = eval_kwargs.get('weight_class', 0.0)

@@ -139,7 +139,7 @@ def train(opt, device):
             if (i + 1) % opt.save_checkpoint_every == 0:
                 eval_kwargs = {}
                 eval_kwargs.update(vars(opt))
-                val_loss = eval_extract.eval_and_extract(model, classify_crit, valid_dataset, 'validation', eval_kwargs, False)
+                val_loss = eval_extract.eval_and_extract(model, classify_crit, valid_dataset, device, 'validation', eval_kwargs, False)
                 # 此处输出的是交叉熵loss, 是一个正数, loss越小说明准确性越高, 为了转化为score我们需要加一个负号, score越大准确性越高
                 current_score = -val_loss
                 is_best = False
