@@ -39,6 +39,7 @@ class Encoder_two_fc(nn.Module):
         h_size = (batch_size, self.rnn_size)
         h_0 = torch.FloatTensor(*h_size).zero_()
         c_0 = torch.FloatTensor(*h_size).zero_()
+        print(self.device)
         h_0.to(self.device)
         c_0.to(self.device)
         print('h_0.device is ', h_0.device)
