@@ -38,10 +38,10 @@ class Encoder_two_fc(nn.Module):
         h_size = (batch_size, self.rnn_size)
         h_0 = torch.FloatTensor(*h_size).zero_()
         c_0 = torch.FloatTensor(*h_size).zero_()
-        h_0.to(device)
-        c_0.to(device)
-        print('h_0.device is ', h_0.device)
-        print('c_0.device is ', c_0.device)
+        # h_0.to(device)
+        # c_0.to(device)
+        # print('h_0.device is ', h_0.device)
+        # print('c_0.device is ', c_0.device)
         return (h_0, c_0)
 
     def forward(self, feat0, feat1, feat_mask):#Can I remove feat_mask ?
@@ -53,15 +53,22 @@ class Encoder_two_fc(nn.Module):
         embed_feat0 = embed_feat0.view(batch_size, length, -1)
         embed_feat0 = self.dropout(embed_feat0)
         feat0_init_state = self.init_hidden(batch_size)
+        feat0_init_state = feat0_init_state.to(device)
 
         embed_feat1 = to_contiguous(embed_feat1)
         embed_feat1 = embed_feat1.view(batch_size, length, -1)
         embed_feat1 = self.dropout(embed_feat1)
         feat1_init_state = self.init_hidden(batch_size)
+        feat1_init_state = feat1_init_state.to(device)
 
         out_feats0, out_feats1 = [], []
         h0, c0 = feat0_init_state[0], feat0_init_state[1]
         h1, c1 = feat1_init_state[0], feat1_init_state[1]
+        print('h0.device is ', h0.device)
+        print('c0.device is ', c0.device)
+        print('h1.device is ', h1.device)
+        print('c1.device is ', c1.device)
+
         for i in range(length):
             input_0 = embed_feat0[:, i, :]
             input_1 = embed_feat1[:, i, :]
