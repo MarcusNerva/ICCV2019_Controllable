@@ -59,7 +59,7 @@ def train(opt, device):
     model.to(device)
     # model.cuda()
     model.train()
-    print('######model.device is ', type(model), ' ######')
+    # print('######model.device is ', type(model), ' ######')
 
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
@@ -103,20 +103,20 @@ def train(opt, device):
             # lens = lens.to(device)
             # gts = gts.to(device)
             # video_id = video_id.to(device)
-            print('########caps.device is ', caps.device, '########')
-            print('########caps_mask.device is ', caps_mask.device, '########')
-            print('########feats0.device is ', feats0.device, '########')
-            print('########feats1.device is ', feats1.device, '########')
-            print('########feat_mask.device is ', feat_mask.device, '########')
+            # print('########caps.device is ', caps.device, '########')
+            # print('########caps_mask.device is ', caps_mask.device, '########')
+            # print('########feats0.device is ', feats0.device, '########')
+            # print('########feats1.device is ', feats1.device, '########')
+            # print('########feat_mask.device is ', feat_mask.device, '########')
 
             cap_classes = torch.cat([cap_classes[:, -1:], cap_classes[:, :-1]], dim=1)
             new_mask = torch.zeros_like(class_masks)
-            print('########cap_classes.device is ', cap_classes.device, '########')
-            print('########new_mask.device is ', new_mask.device, '########')
+            # print('########cap_classes.device is ', cap_classes.device, '########')
+            # print('########new_mask.device is ', new_mask.device, '########')
             cap_classes = cap_classes.to(device)
             new_mask = new_mask.to(device)
-            print('!!!!!!!!!cap_classes.device is ', cap_classes.device, '!!!!!!!!!')
-            print('!!!!!!!!!new_mask.device is ', new_mask.device, '!!!!!!!!!!')
+            # print('!!!!!!!!!cap_classes.device is ', cap_classes.device, '!!!!!!!!!')
+            # print('!!!!!!!!!new_mask.device is ', new_mask.device, '!!!!!!!!!!')
             for i in range(class_masks.size(0)):
                 index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
                 new_mask[i, :index + 1] = 1.0
