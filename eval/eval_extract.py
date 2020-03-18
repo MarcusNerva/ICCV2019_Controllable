@@ -34,7 +34,7 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
 
         new_mask = torch.zeros_like(class_masks)
         for i in range(class_masks.size(0)):
-            index = np.argwhere(class_masks.data[i, :] != 0)[0][-1]
+            index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
             new_mask[i, :index + 1] = 1.0
         out = model(feats0, feats1, feat_mask, caps, caps_mask, cap_classes, class_masks)
         loss = classify_crit(out, cap_classes, caps_mask, class_masks).detach()
