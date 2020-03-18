@@ -118,7 +118,7 @@ def train(opt, device):
             print('!!!!!!!!!cap_classes.device is ', cap_classes.device, '!!!!!!!!!')
             print('!!!!!!!!!new_mask.device is ', new_mask.device, '!!!!!!!!!!')
             for i in range(class_masks.size(0)):
-                index = np.argwhere(class_masks.data[i, :] != 0)[0][-1]
+                index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
                 new_mask[i, :index + 1] = 1.0
             optimizer.zero_grad()
 
