@@ -1,0 +1,228 @@
+//anaconda3/lib/python3.7/site-packages/visdom/server.py:39: DeprecationWarning: zmq.eventloop.ioloop is deprecated in pyzmq 17. pyzmq now works with default tornado and asyncio eventloops.
+  ioloop.install()  # Needs to happen before any tornado imports!
+INFO:root:Application Started
+INFO:tornado.access:200 GET / (::1) 23.06ms
+INFO:tornado.access:200 GET /static/css/bootstrap.min.css?v=ec3bb52a00e176a7181d454dffaea219 (::1) 8.85ms
+INFO:tornado.access:200 GET /static/js/bootstrap.min.js?v=5869c96cc8f19086aee625d670d741f9 (::1) 1.64ms
+INFO:tornado.access:200 GET /static/js/jquery.min.js?v=e071abda8fe61194711cfc2ab99fe104 (::1) 1.05ms
+INFO:tornado.access:200 GET /static/js/react-dom.min.js?v=950495cc51ccb90612cf0fe0bb44f8f3 (::1) 1.49ms
+INFO:tornado.access:200 GET /static/js/layout_bin_packer.js?v=6c46683ed70fbb1443caf3531243836d (::1) 1.68ms
+INFO:tornado.access:200 GET /static/css/react-resizable-styles.css?v=9f91a8dbf4d8f7ef1399e625660405f4 (::1) 1.90ms
+INFO:tornado.access:200 GET /static/css/react-grid-layout-styles.css?v=7dc8934d2f9ac5303b8f0bb1148152a0 (::1) 2.33ms
+INFO:tornado.access:200 GET /static/js/react-react.min.js?v=bca103da5b5404d93783ccf73e0e9d1e (::1) 2.51ms
+INFO:tornado.access:200 GET /static/css/style.css?v=fb4729780f2360ef5d3dba13f8ff2873 (::1) 1.39ms
+INFO:tornado.access:200 GET /static/js/mathjax-MathJax.js?v=49565b9ce89c64da075a5a39969b366e (::1) 6.59ms
+INFO:tornado.access:200 GET /static/js/main.js?v=47fc3afa811b358b354df09184e392e7 (::1) 39.63ms
+INFO:tornado.access:200 GET /static/js/plotly-plotly.min.js?v=228e7c114953a7c11c61ded582da09c7 (::1) 58.80ms
+INFO:tornado.access:101 GET /socket (::1) 1.45ms
+INFO:root:Opened new socket from ip: ::1
+INFO:tornado.access:200 GET /static/fonts/glyphicons-halflings-regular.woff2 (::1) 1.35ms
+INFO:tornado.access:200 POST /env/default (::1) 0.73ms
+INFO:tornado.access:200 POST /env/default (::1) 0.60ms
+INFO:tornado.access:200 GET /favicon.png (::1) 12.18ms
+INFO:tornado.access:200 GET /extensions/MathMenu.js?V=2.7.1 (::1) 15.12ms
+INFO:tornado.access:200 GET /extensions/MathZoom.js?V=2.7.1 (::1) 14.34ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.54ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.37ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.32ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.32ms
+INFO:tornado.access:200 POST /events (::1) 0.99ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.37ms
+INFO:tornado.access:200 POST /update (::1) 0.97ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.71ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.72ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.72ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.76ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.81ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.81ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 1.00ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.40ms
+INFO:tornado.access:200 POST /update (::1) 0.88ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.47ms
+INFO:tornado.access:200 POST /update (::1) 0.99ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.80ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.82ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.40ms
+INFO:tornado.access:200 POST /update (::1) 0.86ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.85ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.49ms
+INFO:tornado.access:200 POST /update (::1) 0.91ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.82ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.83ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.50ms
+INFO:tornado.access:200 POST /update (::1) 1.12ms
+INFO:tornado.access:200 GET / (::1) 21.70ms
+INFO:tornado.access:101 GET /socket (::1) 0.85ms
+INFO:root:Opened new socket from ip: ::1
+INFO:tornado.access:200 POST /env/default (::1) 1.06ms
+INFO:tornado.access:200 POST /env/default (::1) 1.01ms
+INFO:tornado.access:200 GET /favicon.png (::1) 18.71ms
+INFO:tornado.access:200 GET /extensions/MathMenu.js?V=2.7.1 (::1) 21.22ms
+INFO:tornado.access:200 GET /extensions/MathZoom.js?V=2.7.1 (::1) 23.52ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.62ms
+INFO:tornado.access:200 POST /update (::1) 1.61ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.94ms
+INFO:tornado.access:200 POST /update (::1) 2.58ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.67ms
+INFO:tornado.access:200 POST /update (::1) 1.70ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.73ms
+INFO:tornado.access:200 POST /update (::1) 1.36ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.45ms
+INFO:tornado.access:200 POST /update (::1) 1.30ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.46ms
+INFO:tornado.access:200 POST /update (::1) 1.61ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.04ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.04ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.81ms
+INFO:tornado.access:200 POST /update (::1) 1.08ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.63ms
+INFO:tornado.access:200 POST /update (::1) 1.30ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.04ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.07ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.10ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.09ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.59ms
+INFO:tornado.access:200 POST /update (::1) 1.62ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.43ms
+INFO:tornado.access:200 POST /update (::1) 1.09ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.49ms
+INFO:tornado.access:200 POST /update (::1) 1.24ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 1.08ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.43ms
+INFO:tornado.access:200 POST /update (::1) 1.12ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.72ms
+INFO:tornado.access:200 POST /update (::1) 1.45ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.46ms
+INFO:tornado.access:200 POST /update (::1) 1.18ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 1.13ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.32ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 0.74ms
+INFO:root:from web client: {"cmd":"close","data":"loss","eid":"picture of loss"}
+INFO:root:closing window loss
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 1.08ms
+INFO:tornado.access:200 POST /events (::1) 0.73ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.79ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.83ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.91ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.37ms
+INFO:tornado.access:200 POST /update (::1) 0.77ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.67ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 0.81ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.87ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.42ms
+INFO:tornado.access:200 POST /update (::1) 0.98ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.99ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.40ms
+INFO:tornado.access:200 POST /update (::1) 0.88ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.81ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.85ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.73ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 0.85ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.73ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.88ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.80ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.90ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.81ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.47ms
+INFO:tornado.access:200 POST /update (::1) 0.87ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.79ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 1.20ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.84ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 0.93ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.85ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.90ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.74ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.93ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.84ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.93ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.71ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.93ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.71ms
+INFO:tornado.access:200 POST /env/main (::1) 0.85ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 1.11ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 0.94ms
+INFO:root:comparing envs
+INFO:tornado.access:200 POST /compare/main+picture%20of%20loss (::1) 0.82ms
+INFO:tornado.access:200 POST /env/picture%20of%20loss (::1) 1.25ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 1.09ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.92ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.88ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 0.98ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.39ms
+INFO:tornado.access:200 POST /update (::1) 1.00ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.38ms
+INFO:tornado.access:200 POST /update (::1) 1.00ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.36ms
+INFO:tornado.access:200 POST /update (::1) 0.95ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.45ms
+INFO:tornado.access:200 POST /update (::1) 1.24ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.53ms
+INFO:tornado.access:200 POST /update (::1) 1.54ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.64ms
+INFO:tornado.access:200 POST /update (::1) 1.89ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.54ms
+INFO:tornado.access:200 POST /update (::1) 1.68ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.51ms
+INFO:tornado.access:200 POST /update (::1) 1.34ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.44ms
+INFO:tornado.access:200 POST /update (::1) 1.12ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 1.08ms
+INFO:tornado.access:200 POST /win_exists (::1) 0.41ms
+INFO:tornado.access:200 POST /update (::1) 1.38ms

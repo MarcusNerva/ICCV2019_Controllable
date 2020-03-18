@@ -1,0 +1,67 @@
+import torch
+import torch.nn as nn
+import numpy as np
+import sys
+import os
+import h5py
+sys.path.append('../')
+from data.dataset import *
+from torch.utils.data import DataLoader
+from models.pos_generator import *
+
+def eval_and_extract(model, classify_crit, dataset, dataset_name='train' , eval_kwargs={}, extract_pos=False):
+    lang_eval = eval_kwargs.get('language_eval', 0)
+    beam_size = eval_kwargs.get('beam_size', 1)
+    weight_class = eval_kwargs.get('weight_class', 0.0)
+
+    model.eval()
+
+    loss_sum = 0
+    loss_evals = 1e-8
+
+    if extract_pos:
+        path = os.path.join(eval_kwargs['data_path'], '/pos_features/' + dataset_name + '.hdf5')
+        writer = h5py.File(path)
+    dataset_loader = DataLoader(dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_pos)
+    for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(dataset_loader):
+        caps = caps.to(device)
+        caps_mask = caps_mask.to(device)
+        cap_classes = cap_classes.to(device)
+        class_masks = class_masks.to(device)
+        feats0 = feats0.to(device)
+        feats1 = feats1.to(device)
+        feat_mask = feat_mask.to(device)
+
+        new_mask = torch.zeros_like(class_masks)
+        for i in range(class_masks.size(0)):
+            index = np.argwhere(class_masks.data[i, :] != 0)[0][-1]
+            new_mask[i, :index + 1] = 1.0
+        out = model(feats0, feats1, feat_mask, caps, caps_mask, cap_classes, class_masks)
+        loss = classify_crit(out, cap_classes, caps_mask, class_masks).detach()
+        loss_sum += loss
+        loss_evals += 1
+
+        seq, seqLogprobs, collect_state, collect_mask = model.sample(feats0, feats1, feat_mask, eval_kwargs)
+        seq = seq.cpu()
+        seqLogprobs = seqLogprobs.cpu()
+
+        collect_state = collect_state.data.cpu().numpy()
+        collect_mask = collect_mask.data.cpu().numpy()
+        collect_seq = seq.numpy()
+
+        if extract_pos:
+            for i, vid in enumerate(video_id):
+                try:
+                    writer.create_group(vid)
+                except ValueError:
+                    continue
+                writer[vid]['states'] = collect_state[i]
+                writer[vid]['masks'] = collect_mask[i:i + 1, :]
+                writer[vid]['tokens'] = collect_seq[i:i + 1, :]
+
+        if extract_pos:
+            writer.close()
+
+        model.train()
+        return loss_sum / loss_evals
+
