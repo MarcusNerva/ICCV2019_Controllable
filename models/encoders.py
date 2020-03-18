@@ -53,17 +53,17 @@ class Encoder_two_fc(nn.Module):
         embed_feat0 = embed_feat0.view(batch_size, length, -1)
         embed_feat0 = self.dropout(embed_feat0)
         feat0_init_state = self.init_hidden(batch_size)
-        feat0_init_state = feat0_init_state.to(device)
+        # feat0_init_state = feat0_init_state.to(device)
 
         embed_feat1 = to_contiguous(embed_feat1)
         embed_feat1 = embed_feat1.view(batch_size, length, -1)
         embed_feat1 = self.dropout(embed_feat1)
         feat1_init_state = self.init_hidden(batch_size)
-        feat1_init_state = feat1_init_state.to(device)
+        # feat1_init_state = feat1_init_state.to(device)
 
         out_feats0, out_feats1 = [], []
-        h0, c0 = feat0_init_state[0], feat0_init_state[1]
-        h1, c1 = feat1_init_state[0], feat1_init_state[1]
+        h0, c0 = feat0_init_state[0].to(device), feat0_init_state[1].to(device)
+        h1, c1 = feat1_init_state[0].to(device), feat1_init_state[1].to(device)
         print('h0.device is ', h0.device)
         print('c0.device is ', c0.device)
         print('h1.device is ', h1.device)
