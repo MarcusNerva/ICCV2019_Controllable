@@ -88,7 +88,7 @@ def train(opt, device):
 
         # if torch.cuda.is_available():
         #     torch.cuda.synchronize()
-        for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(train_loader):
+        for iter, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(train_loader):
             # print('data.type is ', type(data))
             # print('caps.type is ', type(caps))
             # print('caps_mask.type is ', type(caps_mask))
@@ -133,13 +133,11 @@ def train(opt, device):
             # end = time.time()
             loss_meter.add(train_loss.item())
 
-            if (i + 1) % opt.visualize_every:
+            if (iter + 1) % opt.visualize_every == 0:
                 vis.plot('loss', loss_meter.value()[0])
 
             # print('opt.save_checkpoint_every == ', opt.save_checkpoint_every)
-            if (i + 1) % opt.save_checkpoint_every == 0:
-                print('OK!')
-            if (i + 1) % opt.save_checkpoint_every == 0:
+            if (iter + 1) % opt.save_checkpoint_every == 0:
                 print('i am saving!!')
                 eval_kwargs = {}
                 eval_kwargs.update(vars(opt))
@@ -153,10 +151,10 @@ def train(opt, device):
                     train_patience = 0
                 else:
                     train_patience += 1
-                path_of_save_model = os.path.join(opt.checkpoint_path, str(i) + '_model.pth')
+                path_of_save_model = os.path.join(opt.checkpoint_path, str(iter) + '_model.pth')
                 torch.save(model.state_dict(), path_of_save_model)
 
-                infos['iteration'] = i
+                infos['iteration'] = iter
                 infos['epoch'] = epoch
                 infos['best_val_score'] = best_val_score
                 infos['opt'] = opt
