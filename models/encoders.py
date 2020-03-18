@@ -40,6 +40,8 @@ class Encoder_two_fc(nn.Module):
         c_0 = torch.FloatTensor(*h_size).zero_()
         h_0.to(device)
         c_0.to(device)
+        print('h_0.device is ', h_0.device)
+        print('c_0.device is ', c_0.device)
         return (h_0, c_0)
 
     def forward(self, feat0, feat1, feat_mask):#Can I remove feat_mask ?
