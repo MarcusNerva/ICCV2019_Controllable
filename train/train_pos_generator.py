@@ -58,7 +58,7 @@ def train(opt):
         model.load_state_dict(torch.load(os.path.join(opt.start_from, opt.model_name + '-bestmodel.pth')), strict=False)
     model.to(device)
     model.train()
-    print('######model.device is ', model.device, ' ######')
+    print('######model.device is ', type(model), ' ######')
 
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
