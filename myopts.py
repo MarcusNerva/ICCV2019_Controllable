@@ -10,10 +10,10 @@ def parse_opt():
                         default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data',
                         help='the path of the data')
     # parser.add_argument('--start_from', type=str,
-    #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/checkpoints',
+    #                     default=None,
     #                     help='continue training from saved model at this path')
     parser.add_argument('--start_from', type=str,
-                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/checkpoints',
+                        default=None,
                         help='continue training from saved model at this path')
     # parser.add_argument('--checkpoint_path', type=str,
     #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/checkpoints',
