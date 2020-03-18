@@ -136,7 +136,7 @@ def train(opt, device):
             if (i + 1) % opt.visualize_every:
                 vis.plot('loss', loss_meter.value()[0])
 
-            print('opt.save_checkpoint_every == ', opt.save_check_point_every)
+            print('opt.save_checkpoint_every == ', opt.save_checkpoint_every)
 
             if (i + 1) % opt.save_checkpoint_every == 0:
                 print('i am saving!!')
