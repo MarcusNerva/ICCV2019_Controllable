@@ -56,7 +56,8 @@ def train(opt):
     if opt.start_from is not None:
         assert os.path.isfile(opt.start_from + opt.model_name + '-bestmodel.pth'), 'bestmodel saving is not exist!'
         model.load_state_dict(torch.load(os.path.join(opt.start_from, opt.model_name + '-bestmodel.pth')), strict=False)
-    model.to(device)
+    # model.to(device)
+    model.cuda()
     model.train()
     print('######model.device is ', type(model), ' ######')
 
