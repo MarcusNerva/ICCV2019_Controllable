@@ -39,7 +39,7 @@ def parse_opt():
     parser.add_argument('--seed', type=int, default=0, help='the random seed')
 
     # General settings
-    parser.add_argument('--epochs', type=int, default=30, help='number of epochs')
+    parser.add_argument('--max_epochs', type=int, default=30, help='number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--grad_clip', type=float, default=0.1, help='clip gradients at this value')
     parser.add_argument('--drop_probability', type=float, default=0.5, help='strength of dropout')

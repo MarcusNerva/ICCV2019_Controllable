@@ -133,8 +133,10 @@ def train(opt, device):
             # end = time.time()
             loss_meter.add(train_loss.item())
 
-            if (i + 1) % opt.visualize_every == 0:
+            if (i + 1) % opt.visualize_every:
                 vis.plot('loss', loss_meter.value()[0])
+
+            print('opt.save_checkpoint_every == ', opt.save_check_point_every)
 
             if (i + 1) % opt.save_checkpoint_every == 0:
                 print('i am saving!!')
@@ -174,7 +176,7 @@ def train(opt, device):
         if train_patience > opt.patience:
             print('accuracy is not improving any more!!!!!')
             break
-        elif epoch > opt.max_epoch:
+        elif epoch > opt.max_epochs:
             print('reached max epoch, now i am breaking out')
             break
 
