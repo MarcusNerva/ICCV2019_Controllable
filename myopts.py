@@ -39,14 +39,14 @@ def parse_opt():
     parser.add_argument('--seed', type=int, default=0, help='the random seed')
 
     # General settings
-    parser.add_argument('--max_epochs', type=int, default=30, help='number of epochs')
+    parser.add_argument('--max_epochs', type=int, default=3000, help='number of epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='batch size')
     parser.add_argument('--grad_clip', type=float, default=0.1, help='clip gradients at this value')
     parser.add_argument('--drop_probability', type=float, default=0.5, help='strength of dropout')
     parser.add_argument('--beam_size', type=int, default=1, help='beam size')
     parser.add_argument('--save_checkpoint_every', type=int, default=50, help='save a model every x iteration')
     parser.add_argument('--reward_type', type=str, default='CIDEr', help='use BLEU/METEOR/ROUGE/CIDEr as reward')
-    parser.add_argument('--patience', type=int, default=30, help='the early stop threshold which designed for solving the score stopped raising')
+    parser.add_argument('--patience', type=int, default=40, help='the early stop threshold which designed for solving the score stopped raising')
     parser.add_argument('--model_name', type=str, default='pos', help='name of the model under using')
     parser.add_argument('--load_best_score', type=int, default=0, help='if you want to load previous best score, please input 1. Otherwise input 0.')
     parser.add_argument('--learning_rate', type=float, default=4e-4, help='learning rate')
