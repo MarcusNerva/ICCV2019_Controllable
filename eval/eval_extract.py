@@ -31,17 +31,20 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
         feats0 = feats0.to(device)
         feats1 = feats1.to(device)
         feat_mask = feat_mask.to(device)
-        print('######here comes cap_classes#######')
-        print(cap_classes)
+        # print('######here comes cap_classes#######')
+        # print(cap_classes)
 
+        cap_classes = torch.cat([cap_classes[:, -1:], cap_classes[:, :-1]], dim=-1)
+        # 先在这里把最后一个放在第一位(<EOS>和<BOS>貌似没有区分), 这样out就可以生成和cap_classes未变化之前同样的结构,
+        # 之后在classify_crit中把cap_classes再变回来, 这样就可以实现out和cap_classes同结构比较了
         new_mask = torch.zeros_like(class_masks)
         for i in range(class_masks.size(0)):
             index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
             new_mask[i, :index + 1] = 1.0
         out = model(feats0, feats1, feat_mask, caps, caps_mask, cap_classes, class_masks)
-        print('input(out).shape == ', out.shape)
-        print('cap_classes.shape == ', cap_classes.shape)
-        print('caps_mask.shape == ', caps_mask.shape)
+        # print('input(out).shape == ', out.shape)
+        # print('cap_classes.shape == ', cap_classes.shape)
+        # print('caps_mask.shape == ', caps_mask.shape)
         loss = classify_crit(out, cap_classes, caps_mask, class_masks).detach()
         loss_sum += loss
         loss_evals += 1
