@@ -219,13 +219,14 @@ class pos_generator(CaptionModel):
         temperature = opt.get('temperature', 1.0)
 
         feats = self.encoder(feats_rgb, feats_opfl, feat_mask)
+        print('###########feats.device is ', feats.device)
         # print('============feats.shape is ', feats.shape, ' ============')
         if beam_size > 1:
             return self.beam_sample(feats, feat_mask, opt)
         print('Now greedy strategy is applied')
         batch_size = feats.size(0)
         state = self.init_hidden(feats, feat_mask)
-        print('#############state[0].device is ', state[0].device)
+        # print('#############state[0].device is ', state[0].device)
         # print('=============state0.shape is ', state[0].shape, ' ============')
         seq = []
         seqLogprobs = []
