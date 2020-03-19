@@ -221,7 +221,7 @@ class pos_generator(CaptionModel):
         feats = self.encoder(feats_rgb, feats_opfl, feat_mask)
         # print('============feats.shape is ', feats.shape, ' ============')
         if beam_size > 1:
-            return self.beam_search(feats, feat_mask, opt)
+            return self.beam_sample(feats, feat_mask, opt)
         print('Now greedy strategy is applied')
         batch_size = feats.size(0)
         state = self.init_hidden(feats, feat_mask)
