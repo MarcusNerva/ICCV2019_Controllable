@@ -39,7 +39,7 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
             index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
             new_mask[i, :index + 1] = 1.0
         out = model(feats0, feats1, feat_mask, caps, caps_mask, cap_classes, class_masks)
-        print('input(out).shape == ', input.shape)
+        print('input(out).shape == ', out.shape)
         print('cap_classes.shape == ', cap_classes.shape)
         print('caps_mask.shape == ', caps_mask.shape)
         loss = classify_crit(out, cap_classes, caps_mask, class_masks).detach()
