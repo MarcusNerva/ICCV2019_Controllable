@@ -30,16 +30,16 @@ class ClassifierCriterion(nn.Module):
         # target.shape == (batch_size, seq_len + 1)
         # mask.shape == (batch_size, seq_len + 1)
 
-        print('input.shape == ', input.shape)
-        print('target.shape == ', target.shape)
-        print('mask.shape == ', mask.shape)
+        # print('input.shape == ', input.shape)
+        # print('target.shape == ', target.shape)
+        # print('mask.shape == ', mask.shape)
         input = to_contiguous(input).view(-1, input.size(-1))
         target = torch.cat([target[:, 1:], target[:, 0].unsqueeze(1)], dim=1)
         target = to_contiguous(target).view(-1, 1)
         mask = to_contiguous(mask).view(-1, 1)
-        print('input.shape == ', input.shape)
-        print('target.shape == ', target.shape)
-        print('mask.shape == ', mask.shape)
+        # print('input.shape == ', input.shape)
+        # print('target.shape == ', target.shape)
+        # print('mask.shape == ', mask.shape)
         output = -1. * input.gather(1, target) * mask
         # 此处其实还是交叉熵
         if class_mask is None:

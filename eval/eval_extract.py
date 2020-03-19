@@ -23,7 +23,7 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
         path = os.path.join(eval_kwargs['data_path'], '/pos_features/' + dataset_name + '.hdf5')
         writer = h5py.File(path)
     dataset_loader = DataLoader(dataset, batch_size=eval_kwargs.get('batch_size', 64), shuffle=True, collate_fn=collate_fn_pos)
-    for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(dataset_loader):
+    for iter, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(dataset_loader):
         caps = caps.to(device)
         caps_mask = caps_mask.to(device)
         cap_classes = cap_classes.to(device)
@@ -31,12 +31,17 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
         feats0 = feats0.to(device)
         feats1 = feats1.to(device)
         feat_mask = feat_mask.to(device)
+        print('######here comes cap_classes#######')
+        print(cap_classes)
 
         new_mask = torch.zeros_like(class_masks)
         for i in range(class_masks.size(0)):
             index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
             new_mask[i, :index + 1] = 1.0
         out = model(feats0, feats1, feat_mask, caps, caps_mask, cap_classes, class_masks)
+        print('input(out).shape == ', input.shape)
+        print('cap_classes.shape == ', cap_classes.shape)
+        print('caps_mask.shape == ', caps_mask.shape)
         loss = classify_crit(out, cap_classes, caps_mask, class_masks).detach()
         loss_sum += loss
         loss_evals += 1
