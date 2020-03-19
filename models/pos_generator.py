@@ -263,7 +263,7 @@ class pos_generator(CaptionModel):
                 xt_mask = torch.ones([batch_size, 1]).float()
             else:
                 xt_mask = unfinished.unsqueeze(-1).float()
-            xt_mask.to(self.device)
+            xt_mask = xt_mask.to(self.device)
             output, state = self.decoder(xt, feats, xt_mask, state)
             logprobs = torch.log_softmax(self.logit(output), dim=1)
             collect_states.append(state[0][-1])

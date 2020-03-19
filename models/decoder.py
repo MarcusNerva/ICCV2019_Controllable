@@ -68,10 +68,6 @@ class Two_inputs_lstmcell(nn.Module):
 
         state_c = forget_gate * state[1][-1] + in_gate * in_transform
         if mask is not None:
-            print('$$$$$$state_c.device is ', state_c.device)
-            print('$$$$$$mask.device is ', mask.device)
-            print('$$$$$$state[1][-1].device is ', state[1][-1].device)
-            print('$$$$$$(1 - mask).device is ', (1 - mask).device)
             state_c = state_c * mask + state[1][-1] * (1 - mask)
         state_h = out_gate * torch.tanh(state_c)
         if mask is not None:
