@@ -225,6 +225,7 @@ class pos_generator(CaptionModel):
         print('Now greedy strategy is applied')
         batch_size = feats.size(0)
         state = self.init_hidden(feats, feat_mask)
+        print('#############state[0].device is ', state[0].device)
         # print('=============state0.shape is ', state[0].shape, ' ============')
         seq = []
         seqLogprobs = []
