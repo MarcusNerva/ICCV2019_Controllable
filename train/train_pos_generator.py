@@ -34,7 +34,7 @@ def train(opt, device):
     train_dataset, valid_dataset, test_dataset = load_dataset_pos(opt)
     infos = {}
     if opt.start_from is not None:
-        with open(os.path.join(opt.start_from, 'infos_' + opt.model_name + '-best.pkl')) as f:
+        with open(os.path.join(opt.start_from, 'infos_' + opt.model_name + '-best.pkl'), 'rb') as f:
             infos = pickle.load(f)
             saved_model_opt = infos['opt']
             need_be_same = ['rnn_size', 'num_layers']
