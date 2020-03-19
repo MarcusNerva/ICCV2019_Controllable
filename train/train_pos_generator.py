@@ -138,7 +138,7 @@ def train(opt, device):
 
             # print('opt.save_checkpoint_every == ', opt.save_checkpoint_every)
             if (iter + 1) % opt.save_checkpoint_every == 0:
-                print('i am saving!!')
+                # print('i am saving!!')
                 eval_kwargs = {}
                 eval_kwargs.update(vars(opt))
                 val_loss = eval_extract.eval_and_extract(model, classify_crit, valid_dataset, device, 'validation', eval_kwargs, False)
