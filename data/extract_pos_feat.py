@@ -24,6 +24,7 @@ if __name__ == '__main__':
 
     eval_kwargs = {}
     eval_kwargs.update(vars(opt))
+    print(eval_kwargs['data_path'])
     loss_train = eval_and_extract(model=model, classify_crit=classify_crit, dataset=train_set, device=device, dataset_name='train', eval_kwargs=eval_kwargs, extract_pos=True)
     loss_valid = eval_and_extract(model=model, classify_crit=classify_crit, dataset=valid_set, device=device, dataset_name='valid', eval_kwargs=eval_kwargs, extract_pos=True)
     loss_test = eval_and_extract(model=model, classify_crit=classify_crit, dataset=test_set, device=device, dataset_name='test', eval_kwargs=eval_kwargs, extract_pos=True)
