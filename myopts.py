@@ -7,7 +7,7 @@ def parse_opt():
     #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
     #                     help='the path of the data')
     parser.add_argument('--data_path', type=str,
-                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data',
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data/',
                         help='the path of the data')
     # parser.add_argument('--start_from', type=str,
     #                     default=None,
