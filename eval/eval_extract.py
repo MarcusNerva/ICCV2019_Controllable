@@ -20,6 +20,7 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
     loss_evals = 1e-8
 
     if extract_pos:
+        print(eval_kwargs['data_path'])
         path = os.path.join(eval_kwargs['data_path'], '/pos_features/' + dataset_name + '.hdf5')
         print('path is ', path)
         # if not os.path.exists(path):
