@@ -25,7 +25,7 @@ def parse_opt():
                         help=' the number of feats(frames) take out from a video')
 
     # Model settings
-    parser.add_argument('--vocab_size', type=int, default=20000, help='number of all words')
+    parser.add_argument('--vocab_size', type=int, default=30000, help='number of all words')
     parser.add_argument('--category_size', type=int, default=14, help='number of all category')
     parser.add_argument('--rnn_size', type=int, default=512, help='size of the LSTM\'s hidden state')
     parser.add_argument('--num_layers', type=int, default=1, help='number of layers in LSTM')
@@ -34,6 +34,7 @@ def parse_opt():
     parser.add_argument('--att_size', type=int, default=1536, help='the size of the attention mechinism')
     parser.add_argument('--feat0_size', type=int, default=1536, help='the size of the rgb feature size')
     parser.add_argument('--feat1_size', type=int, default=1024, help='the size of the opfl feature size')
+    parser.add_argument('--pos_size', type=int, default=512, help='size of the pos feature')
     parser.add_argument('--activity_fn', type=str, default='ReLU', help='ReLU, Tanh, Sigmoid...')
     parser.add_argument('--weight_class', type=float, default=0.0)
     parser.add_argument('--seed', type=int, default=0, help='the random seed')

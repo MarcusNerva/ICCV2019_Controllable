@@ -296,6 +296,7 @@ class Dset_test(Dataset):
         feat1 = torch.from_numpy(feat1).float()
 
         feat_mask = (torch.sum(feat0.view(feat0.size(0), -1), dim=1, keepdim=True) != 0).float().transpose(1, 0)
+        # print('$$$$$$$$feat_mask.shape is ', feat_mask.shape)
 
         if self.pos_store is not None:
             pos_feat = self.pos_store[data.decode().split('_')[0]]['states'][:]
@@ -355,7 +356,7 @@ def collate_fn_cap(batch):
     max_len = len(cap[0])
     feats0 = torch.stack(feats0, dim=0)
     feats1 = torch.stack(feats1, dim=0)
-    feat_mask = torch.stack(feat_mask, dim=0)
+    feat_mask = torch.cat(feat_mask, dim=0)
     pos_feat = torch.stack(pos_feat, dim=0)
 
     caps = []
@@ -423,9 +424,9 @@ def load_dataset_cap(opt):
     pos_valid_feature = h5py.File(pos_valid_path, 'r')
     pos_test_feature = h5py.File(pos_test_path, 'r')
 
-    train_dataset = Dset_train(train_pkl=train_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_train_feature, nwords=opt.vocab_size, K=opt.feat_K, opt=opt)
-    valid_dataset = Dset_test(test_pkl=valid_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_valid_feature, nwords=opt.vocab_size, K=opt.feat_K, opt=opt)
-    test_dataset = Dset_test(test_pkl=test_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_test_feature, nwords=opt.vocab_size, K=opt.feat_K,opt=opt)
+    train_dataset = Dset_train(train_pkl=train_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_train_feature, nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
+    valid_dataset = Dset_test(test_pkl=valid_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_valid_feature, nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
+    test_dataset = Dset_test(test_pkl=test_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_test_feature, nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
     return train_dataset, valid_dataset, test_dataset
 
 class Opt_stub:

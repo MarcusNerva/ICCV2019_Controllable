@@ -93,9 +93,9 @@ class CaptionModel(nn.Module):
         done_beams = sorted(done_beams, key= lambda x: -x['sum_probability'])[:beam_size]
         return done_beams
 
-class pos_generator(CaptionModel):
+class Pos_generator(CaptionModel):
     def __init__(self, opt):
-        super(pos_generator, self).__init__()
+        super(Pos_generator, self).__init__()
         torch.manual_seed(opt.seed)
         torch.cuda.manual_seed(opt.seed)
 
@@ -142,6 +142,7 @@ class pos_generator(CaptionModel):
         feat_mean = (feat_ / mask_.unsqueeze(-1)).unsqueeze(0)
         feat_mean = feat_mean.to(self.device)
         state0 = (self.video_embed_h0(feat_mean), self.video_embed_c0(feat_mean))
+        # h0.shape == (1, beam_size, rnn_size)
         return state0
 
     def forward(self, feats_rgb, feats_opfl, feat_mask, seq, seq_mask, cap_classes, new_mask):

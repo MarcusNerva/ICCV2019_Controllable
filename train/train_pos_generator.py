@@ -52,7 +52,7 @@ def train(opt, device):
     torch.manual_seed(opt.seed)
     torch.cuda.manual_seed(opt.seed)
 
-    model = pos_generator(opt=opt)
+    model = Pos_generator(opt=opt)
     if opt.start_from is not None:
         assert os.path.isfile(opt.start_from + opt.model_name + '-bestmodel.pth'), 'bestmodel saving is not exist!'
         model.load_state_dict(torch.load(os.path.join(opt.start_from, opt.model_name + '-bestmodel.pth')), strict=False)
