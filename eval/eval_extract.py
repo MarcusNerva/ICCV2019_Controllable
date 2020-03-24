@@ -35,6 +35,13 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
         feats0 = feats0.to(device)
         feats1 = feats1.to(device)
         feat_mask = feat_mask.to(device)
+        print('caps.device is ', caps.device)
+        print('caps_mask.device is ', caps_mask.device)
+        print('cap_classes.device is ', cap_classes.device)
+        print('class_masks.device is ', class_masks.device)
+        print('feats0.device is ', feats0.device)
+        print('feats1.device is ', feats1.device)
+        print('feat_mask.device is ', feat_mask.device)
         # print('######here comes cap_classes#######')
         # print(cap_classes)
 
