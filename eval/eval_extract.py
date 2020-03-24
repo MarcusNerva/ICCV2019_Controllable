@@ -21,6 +21,7 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
 
     if extract_pos:
         path = os.path.join(eval_kwargs['data_path'], '/pos_features/' + dataset_name + '.hdf5')
+        print('path is ', path)
         # if not os.path.exists(path):
         #     open(path)
         writer = h5py.File(path, 'w')
