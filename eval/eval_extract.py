@@ -21,6 +21,9 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
 
     if extract_pos:
         path = os.path.join(eval_kwargs['data_path'], '/pos_features/' + dataset_name + '.hdf5')
+        if not os.path.exists(path):
+            with open(path) as f:
+                pass
         writer = h5py.File(path)
     dataset_loader = DataLoader(dataset, batch_size=eval_kwargs.get('batch_size', 64), shuffle=True, collate_fn=collate_fn_pos)
     for iter, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(dataset_loader):
