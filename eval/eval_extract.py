@@ -66,9 +66,9 @@ def eval_and_extract(model, classify_crit, dataset, device, dataset_name='train'
                 writer[vid]['masks'] = collect_mask[i:i + 1, :]
                 writer[vid]['tokens'] = collect_seq[i:i + 1, :]
 
-        if extract_pos:
-            writer.close()
+    if extract_pos:
+        writer.close()
 
-        model.train()
-        return loss_sum / loss_evals
+    model.train()
+    return loss_sum / loss_evals
 
