@@ -81,7 +81,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         for t in range(batch_size):
             total_prediction.append(seq[t])
             temp = []
-            number = gts[t].size(0)
+            number = len(gts[t])
             for x in range(number):
                 temp.append(gts[t][x])
             total_groundtruth.append(temp)
