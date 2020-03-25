@@ -95,13 +95,23 @@ def get_nwords(path):
 def get_nclasses(path):
     return 14
 
+def get_itow(data_path):
+    ret = {}
+    path = os.path.join(data_path, 'worddict.pkl')
+    wtoi = load_pkl(path)
+    wtoi['<EOS>'] = 0
+    wtoi['<UNK>'] = 1
+    for word, id in wtoi.iteritems():
+        ret[id] = word
+    return ret
+
 class Dset_train(Dataset):
-    def get_itow(self):
-        wtoi = self.wtoi
-        itow = {}
-        for word, id in wtoi.iteritems():
-            itow[id] = word
-        return itow
+    # def get_itow(self):
+    #     wtoi = self.wtoi
+    #     itow = {}
+    #     for word, id in wtoi.iteritems():
+    #         itow[id] = word
+    #     return itow
 
     def __init__(self, train_pkl, cap_pkl, cate_pkl, feat0_store, feat1_store, wtoi_path, pos_store=None, nwords=10000, K=28, opt=None):
         super(Dset_train, self).__init__()
@@ -196,12 +206,12 @@ class Dset_train(Dataset):
         return data, cap, cap_class, class_mask, feat0, feat1, feat_mask, pos_feat, gts
 
 class Dset_test(Dataset):
-    def get_itow(self):
-        wtoi = self.wtoi
-        itow = {}
-        for word, id in wtoi.iteritems():
-            itow[id] = word
-        return itow
+    # def get_itow(self):
+    #     wtoi = self.wtoi
+    #     itow = {}
+    #     for word, id in wtoi.iteritems():
+    #         itow[id] = word
+    #     return itow
 
     def __init__(self, test_pkl, cap_pkl, cate_pkl, feat0_store, feat1_store, wtoi_path, pos_store=None, nwords=10000, K=28, opt=None):
         super(Dset_test, self).__init__()
@@ -415,9 +425,9 @@ def load_dataset_cap(opt):
     feat0_path = os.path.join(opt.data_path, 'IR_feats.hdf5')
     feat1_path = os.path.join(opt.data_path, 'I3D_feats.hdf5')
     wtoi_path = os.path.join(opt.data_path, 'worddict.pkl')
-    pos_train_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
-    pos_valid_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
-    pos_test_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
+    pos_train_path = os.path.join(opt.data_path, 'train.hdf5')
+    pos_valid_path = os.path.join(opt.data_path, 'valid.hdf5')
+    pos_test_path = os.path.join(opt.data_path, 'test.hdf5')
     feat0 = h5py.File(feat0_path, 'r')
     feat1 = h5py.File(feat1_path, 'r')
     pos_train_feature = h5py.File(pos_train_path, 'r')
@@ -440,6 +450,7 @@ class Opt_stub:
 
 if __name__=='__main__':
     opt = Opt_stub()
+    # print('n_words is ', get_nwords(opt.data_path))
     pos_train_dataset, pos_valid_dataset, pos_test_dataset = load_dataset_pos(opt=opt)
 #     cap_train_dataset, cap_valid_dataset, cap_test_dataset = load_dataset_cap(opt=opt)
 #
@@ -482,6 +493,7 @@ if __name__=='__main__':
             print('feat_mask.shape == ', np.array(feat_mask).shape)
             print('lens.shape == ', np.array(lens).shape)
             # print('gts.shape == ', np.array(gts).shape)
+            print(gts)
             print('image_id.shape == ', np.array(image_id).shape)
     #
     # print("=================now is testing=====================")
