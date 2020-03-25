@@ -101,7 +101,7 @@ def get_itow(data_path):
     wtoi = load_pkl(path)
     wtoi['<EOS>'] = 0
     wtoi['<UNK>'] = 1
-    for word, id in wtoi.iteritems():
+    for word, id in wtoi.items():
         ret[id] = word
     return ret
 
