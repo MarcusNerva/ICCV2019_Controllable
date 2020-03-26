@@ -68,6 +68,8 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         caps = caps.to(device)
         caps_mask = caps_mask.to(device)
         cap_classes = cap_classes.to(device)
+        class_masks = class_masks.to(device)
+
         seq, seq_probabilities = model.sample(feats0, feats1, feat_mask, pos_feat)
         words, category = model(feats0, feats1, feat_mask, pos_feat, caps, caps_mask)
         classify_loss = classify_crit(category, cap_classes, caps_mask, class_masks)
