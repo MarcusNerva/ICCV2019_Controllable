@@ -79,7 +79,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         loss_sum += (classify_loss + language_loss)
         loss_number += 1
         seq = seq.cpu().numpy()
-        gts = torch.Tensor(gts).cpu().numpy()
+        # gts = torch.Tensor(gts).cpu().numpy()
         for t in range(batch_size):
             total_prediction.append(seq[t])
             temp = []
