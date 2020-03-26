@@ -89,7 +89,7 @@ class Caption_generator(nn.Module):
             categories.append(output_category)
 
         ret_seq_word = torch.cat([_.unsqueeze(1) for _ in outputs], dim=1).contiguous()
-        ret_seq_category =torch.cat([_.unsqueeze(1) for _ in outputs], dim=1).contiguous()
+        ret_seq_category =torch.cat([_.unsqueeze(1) for _ in categories], dim=1).contiguous()
         return ret_seq_word, ret_seq_category
 
     def beam_step(self, logprobs, beam_size, t, beam_seq, beam_seq_logprobs, beam_logprobs_sum, state):
