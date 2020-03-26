@@ -46,6 +46,8 @@ class ClassifierCriterion(nn.Module):
             output = torch.sum(output) / torch.sum(mask)
         else:
             class_mask = to_contiguous(class_mask).view(-1, 1)
+            print('output.device is ', output.device)
+            print('class_mask.device is ', class_mask.device)
             output = output * class_mask
             output = torch.sum(output) / torch.sum(mask)
         return output
