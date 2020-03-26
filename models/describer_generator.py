@@ -261,7 +261,7 @@ class Caption_generator(nn.Module):
             output, state = self.decoder(xt, xt_mask, feats, pos_feat, state)
             log_probabilities = torch.log_softmax(self.logit(output), dim=1)
 
-        return torch.cat([_.unsqueeze(1) for _ in seq], 1), torch.cat([_.unsqueeze(-1) for _ in seq_probabilities])
+        return torch.cat([_.unsqueeze(1) for _ in seq], 1), torch.cat([_.unsqueeze(1) for _ in seq_probabilities], 1)
 
 # if __name__ == '__main__':
 #     opt = myopts.parse_opt()

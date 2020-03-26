@@ -12,6 +12,7 @@ class LanguageModelCriterion(nn.Module):
         # target.shape == (batch_size, seq_len + 1)
         # mask.shape == (batch_size, seq_len + 1)
 
+        print('input.size() == ', input.size())
         input = to_contiguous(input).view(-1, input.size(-1))
         target = torch.cat([target[:, 1:], target[:, 0].unsqueeze(1)], dim=1)
         target = to_contiguous(target).view(-1, 1)
