@@ -16,9 +16,9 @@ class LanguageModelCriterion(nn.Module):
         target = torch.cat([target[:, 1:], target[:, 0].unsqueeze(1)], dim=1)
         target = to_contiguous(target).view(-1, 1)
         mask = to_contiguous(mask).view(-1, 1)
-        # print('input.shape is ', input.size())
-        # print('target.shape is ', target.size())
-        # print('mask.shape is ', mask.shape)
+        print('input.shape is ', input.size())
+        print('target.shape is ', target.size())
+        print('mask.shape is ', mask.shape)
 
         output = -1. * input.gather(1, target) * mask
         output = torch.sum(output) / torch.sum(mask)
