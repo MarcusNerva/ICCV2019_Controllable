@@ -25,7 +25,7 @@ def parse_opt():
                         help=' the number of feats(frames) take out from a video')
 
     # Model settings
-    parser.add_argument('--vocab_size', type=int, default=30000, help='number of all words')
+    parser.add_argument('--vocab_size', type=int, default=29324, help='number of all words')
     parser.add_argument('--category_size', type=int, default=14, help='number of all category')
     parser.add_argument('--rnn_size', type=int, default=512, help='size of the LSTM\'s hidden state')
     parser.add_argument('--num_layers', type=int, default=1, help='number of layers in LSTM')
@@ -53,6 +53,9 @@ def parse_opt():
     parser.add_argument('--learning_rate', type=float, default=4e-4, help='learning rate')
     parser.add_argument('--learning_rate_decay_start', type=int, default=-1, help='after how many iteration begin learning rate decay')
     parser.add_argument('--learning_rate_decay_every', type=int, default=4, help='for every x iteration learning rate have to decay')
+    parser.add_argument('--sample_probability_start', type=int, default=-1, help='set a sample_probability threshold for training')
+    parser.add_argument('--sample_probability_every', type=int, default=4, help='for every x epochs sample_probability will decay')
+    parser.add_argument('--self_critical_after', type=int, default=-1, help='after train x epochs use self_critical strategy')
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay')
     parser.add_argument('--optim', type=str, default='adam', help='the optimizer\'s type: adam or adadelta')
     # parser.add_argument('--visualize_every', type=int, default=3, help='show us loss every x iteration')

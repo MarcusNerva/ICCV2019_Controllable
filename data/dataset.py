@@ -99,10 +99,10 @@ def get_itow(data_path):
     ret = {}
     path = os.path.join(data_path, 'worddict.pkl')
     wtoi = load_pkl(path)
-    wtoi['<EOS>'] = 0
-    wtoi['<UNK>'] = 1
+    wtoi[b'<EOS>'] = 0
+    wtoi[b'<UNK>'] = 1
     for word, id in wtoi.items():
-        ret[id] = word
+        ret[id] = word.decode()
     return ret
 
 class Dset_train(Dataset):
@@ -395,7 +395,7 @@ def collate_fn_cap(batch):
     class_masks = torch.FloatTensor(class_masks)
 
     gts = [torch.from_numpy(x).long() for x in gts]
-    video_id = [i.decode().split('_') for i in data]
+    video_id = [i.decode().split('_')[0] for i in data]
 
     return data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id
 
@@ -428,6 +428,11 @@ def load_dataset_cap(opt):
     pos_train_path = os.path.join(opt.data_path, 'pos_features/train.hdf5')
     pos_valid_path = os.path.join(opt.data_path, 'pos_features/valid.hdf5')
     pos_test_path = os.path.join(opt.data_path, 'pos_features/test.hdf5')
+
+    # pos_train_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
+    # pos_valid_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
+    # pos_test_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
+
     feat0 = h5py.File(feat0_path, 'r')
     feat1 = h5py.File(feat1_path, 'r')
     pos_train_feature = h5py.File(pos_train_path, 'r')

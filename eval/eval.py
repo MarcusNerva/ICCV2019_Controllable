@@ -5,7 +5,7 @@ import sys
 from collections import OrderedDict
 sys.path.append('../')
 sys.path.append('../coco-caption/')
-from data.dataset import load_dataset_cap, collate_fn_cap, get_itow
+from data.dataset import load_dataset_cap, collate_fn_cap, get_itow, get_caps, get_nwords
 from models.describer_generator import Caption_generator
 from models.loss import ClassifierCriterion, LanguageModelCriterion, RewardCriterion
 from pycocoevalcap.bleu.bleu import Bleu
@@ -17,17 +17,24 @@ from torch.utils.data import DataLoader
 def language_eval(sample_seqs, groundtruth_seqs):
     assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs!'
 
-    gts = OrderedDict()
-    for i in range(len(gts)):
-        gts[i] = [groundtruth_seqs[i][j] for j in range(len(groundtruth_seqs[i]))]
+    references = OrderedDict()
+    predictions = OrderedDict()
+    for i in range(len(groundtruth_seqs)):
+        references[i] = [groundtruth_seqs[i][j] for j in range(len(groundtruth_seqs[i]))]
+    for i in range(len(sample_seqs)):
+        predictions[i] = [sample_seqs[i]]
 
-    sampled = {i: sample_seqs[i] for i in range(len(sample_seqs))}
-    gts = {i: gts[i] for i in range(len(groundtruth_seqs))}
+    predictions = {i: predictions[i] for i in range(len(sample_seqs))}
+    references = {i: references[i] for i in range(len(groundtruth_seqs))}
 
-    avg_bleu_score, bleu_score = Bleu(4).compute_score(gts, sampled)
-    avg_cider_score, cider_score = Cider().compute_score(gts, sampled)
-    avg_meteor_score, meteor_score = Meteor().compute_score(gts, sampled)
-    avg_rouge_score, rouge_score = Rouge().compute_score(gts, sampled)
+    avg_bleu_score, bleu_score = Bleu(4).compute_score(references, predictions)
+    print('avg_bleu_score == ', avg_bleu_score)
+    avg_cider_score, cider_score = Cider().compute_score(references, predictions)
+    print('avg_cider_score == ', avg_cider_score)
+    # avg_meteor_score, meteor_score = Meteor().compute_score(references, predictions)
+    # print('avg_meteor_score == ', avg_meteor_score)
+    avg_rouge_score, rouge_score = Rouge().compute_score(references, predictions)
+    print('avg_rouge_score == ', avg_rouge_score)
 
     # print('BLEU1:{}\nBLEU2:{}\nBLEU3:{}\nBLEU4:{}\nMETEOR:{}\nROUGE:{}CIDEr:{}\n'.format(avg_bleu_score[0],
     #                                                                                      avg_bleu_score[1],
@@ -36,14 +43,14 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_meteor_score,
     #                                                                                      avg_rouge_score,
     #                                                                                      avg_cider_score))
-    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score, 'METEOR': avg_meteor_score, 'ROUGE': avg_rouge_score}
+    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score, ''' 'METEOR': avg_meteor_score, '''  'ROUGE': avg_rouge_score}
 
-def decode_idx(seqs, itow):
-    length, seq_len = seqs.size(0), seqs.size(1)
-    ret = [[] for i in range(length)]
+def decode_idx(seq, itow):
+    ret = ''
+    length = seq.shape[0]
     for i in range(length):
-        for j in range(seq_len):
-            ret[i].append(itow[seqs[i][j]])
+        if i > 0: ret += ' '
+        ret += itow[seq[i]]
     return ret
 
 def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
@@ -60,6 +67,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
     total_groundtruth = []
     id_word = get_itow(data_path)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn_cap)
+    caption_set = get_caps(data_path)
     for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(data_loader):
         feats0 = feats0.to(device)
         feats1 = feats1.to(device)
@@ -78,35 +86,47 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         language_loss = language_loss.detach().cpu().numpy()
         loss_sum += (classify_loss + language_loss)
         loss_number += 1
-        seq = seq.cpu().numpy()
+        seqs = seq.cpu().numpy()
+        # print('seq.size is ', seq.shape)
         # gts = torch.Tensor(gts).cpu().numpy()
-        for t in range(batch_size):
-            total_prediction.append(seq[t])
+        for t in range(seqs.shape[0]):
+            total_prediction.append(decode_idx(seqs[t], id_word))
+            # print('video_id[t] is ', video_id[t])
+            vid_t = video_id[t].encode()
+
+            # print('type of seq[t]', type(seq[t]))
+            # print(seq[t].tolist())
             temp = []
-            number = len(gts[t])
+            number = len(caption_set[vid_t])
             for x in range(number):
-                temp.append(gts[t][x])
+                temp.append(caption_set[vid_t][x][b'tokenized'].decode())
+            # print('new prediction:')
+            # print(total_prediction[-1])
+            # print('groundtruth:')
+            # print(temp)
             total_groundtruth.append(temp)
+        # break
 
     language_state = language_eval(total_prediction, total_groundtruth)
-    sentence = decode_idx(np.array(total_prediction[:10]), id_word)
+    # sentence = decode_idx(total_prediction[0], id_word)
     print('######take a look at consequence#######')
-    print(sentence)
+    print(total_prediction[:10])
 
     return loss_sum / loss_number, language_state
 
-if __name__ == '__main__':
-    import myopts
-    from models.describer_generator import Caption_generator
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    opt = myopts.parse_opt()
-    train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt)
-    model = Caption_generator(opt)
-    model = model.to(device)
-    classify_crit = ClassifierCriterion()
-    crit = LanguageModelCriterion()
-    eval_kwargs = {}
-    eval_kwargs.update(vars(opt))
-    avg_loss, language_state = eval(model, crit, classify_crit, valid_dataset, eval_kwargs)
-    print('avg_loss is ', avg_loss)
-    print('language_state is ', language_state)
+# if __name__ == '__main__':
+#     import myopts
+#     from models.describer_generator import Caption_generator
+#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#     opt = myopts.parse_opt()
+#     train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt)
+#     model = Caption_generator(opt)
+#     model = model.to(device)
+#     classify_crit = ClassifierCriterion()
+#     crit = LanguageModelCriterion()
+#     eval_kwargs = {}
+#     eval_kwargs.update(vars(opt))
+#     # print('number of words is ', get_nwords(opt.data_path))
+#     avg_loss, language_state = eval(model, crit, classify_crit, valid_dataset, eval_kwargs)
+#     print('avg_loss is ', avg_loss)
+#     print('language_state is ', language_state)

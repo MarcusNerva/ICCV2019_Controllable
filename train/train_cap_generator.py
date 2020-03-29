@@ -1,0 +1,180 @@
+import torch
+import torch.nn as nn
+import numpy as np
+import torch.optim as optim
+from torch.utils.data import DataLoader
+import os
+import sys
+import pickle
+sys.path.append('../')
+sys.path.append('../coco-caption/')
+from pycocoevalcap.cider.cider import Cider
+from data.dataset import load_dataset_cap, collate_fn_cap
+from eval.eval import eval
+import myopts
+from models.describer_generator import Caption_generator
+from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
+from visualize import Visualizer
+from collections import OrderedDict
+
+def numbers_to_str(numbers):
+    ret = ''
+    length = len(numbers)
+    for i in range(length):
+        if numbers[i] == 0: break
+        ret += str(numbers[i]) + ' '
+    return ret.strip()
+
+def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtruth, probability_sample):
+    batch_size = feat0.size(0)
+    double_batch_size = batch_size * 2
+    seq_length = probability_sample.size(1)
+
+    greedy_sample, _ = model.sample(feat0, feat1, feat_mask, pos_feat)
+    res = OrderedDict()
+    gts = OrderedDict()
+    greedy_sample = greedy_sample.cpu().numpy()
+    probability_sample = probability_sample.cpu().numpy()
+
+    for i in range(batch_size):
+        res[i] = [numbers_to_str(probability_sample[i])]
+    for i in range(batch_size, double_batch_size):
+        res[i] = [numbers_to_str(greedy_sample[i - batch_size])]
+
+    for i in range(double_batch_size):
+        gts[i] = [numbers_to_str(groundtruth[i][j]) for j in range(groundtruth.size(1))]
+    avg_cider_score, cider_score = Cider().compute_score(gts=gts, res=res)
+    cider_score = np.array(cider_score)
+    reward = cider_score[:batch_size] - cider_score[batch_size:]
+    reward = np.repeat(reward[:, np.newaxis], [seq_length], axis=1)
+    return reward
+
+def set_lr(optimizer, lr):
+    for group in optimizer.param_groups:
+        group['lr'] = lr
+
+def clip_gradient(optimizer, grad_clip):
+    for group in optimizer.param_groups:
+        for param in group['params']:
+            if param.grad is None: continue
+            param.grad.data.clamp_(-grad_clip, grad_clip)
+
+def train(opt):
+    vis = Visualizer(env='Caption_generator')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt=opt)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
+    model = Caption_generator(opt=opt)
+    infos = {}
+    best_score = None
+    crit = LanguageModelCriterion()
+    classify_crit = ClassifierCriterion()
+    rl_crit = RewardCriterion()
+
+    if opt.start_from is not None:
+        assert os.path.isdir(opt.start_from), 'opt.start_from must be a dir!'
+        state_dict_path = os.path.join(opt.start_from, opt.model_name + '-bestmodel.pth')
+        assert os.path.isfile(state_dict_path), 'bestmodel don\'t exist!'
+        model.load_state_dict(torch.load(state_dict_path), strict=True)
+
+        infos_path = os.path.join(opt.start_from, 'infos_' + opt.model_name + '-best.pkl')
+        assert os.path.isfile(infos_path), 'infos of bestmodel don\'t exist!'
+        with open(infos_path, 'rb') as f:
+            infos = pickle.load(f)
+
+        if opt.seed == 0: opt.seed = infos['opt'].seed
+
+        best_score = infos.get('best_score', None)
+
+    torch.manual_seed(opt.seed)
+    torch.cuda.manual_seed(opt.seed)
+
+    model.to(device)
+    model.train()
+    optimizer = optim.Adam(model.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
+    train_patience = 0
+    epoch = 0
+
+    while True:
+        if train_patience > opt.patience: break
+        if opt.learning_rate_decay_start != -1 and epoch >= opt.learning_rate_decay_start and opt.optim == 'adam':
+            frac = int((epoch - opt.learning_rate_decay_start) / opt.learning_rate_decay_every)
+            decay_factor = opt.learning_rate_decay_rate ** frac
+            opt.current_lr = opt.learning_rate * decay_factor
+            set_lr(optimizer, opt.current_lr)
+        else:
+            opt.current_lr = opt.learning_rate
+
+        if opt.sample_probability_start != -1 and epoch >= opt.sample_probability_start:
+            frac = int((epoch - opt.sample_probability_start) / opt.sample_probability_every)
+            opt.sample_probability = min(opt.sample_probability * frac, opt.max_sample_probability)
+            model.sample_probability = opt.sample_probability
+
+        if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
+            sc_flag = True
+        else:
+            sc_flag = False
+
+        for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(train_loader):
+
+            feats0 = feats0.to(device)
+            feats1 = feats1.to(device)
+            feat_mask = feat_mask.to(device)
+            pos_feat = pos_feat.to(device)
+            caps = caps.to(device)
+            caps_mask = caps_mask.to(device)
+            cap_classes = cap_classes.to(device)
+            class_masks = class_masks.to(device)
+
+            optimizer.zero_grad()
+            if not sc_flag:
+                words, categories = model(feats0, feats1, feat_mask, pos_feat, caps, caps_mask)
+                loss_words = crit(words, caps, caps_mask)
+                loss_cate = classify_crit(categories, cap_classes, caps_mask, class_masks)
+                loss = loss_words + opt.weight_class * loss_cate
+            else:
+                probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, vars(opt))
+                reward = get_self_critical_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
+                loss = rl_crit(sample_logprobs, probability_sample, reward)
+            loss.backward()
+            clip_gradient(optimizer, opt.grad_clip)
+            optimizer.step()
+
+            if i % opt.visualize_every == 0:
+                train_loss = loss.detach()
+                vis.plot('train_loss', train_loss)
+
+            is_best = False
+            if (i + 1) % opt.save_checkpoint_every == 0:
+                current_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                if current_score < best_score:
+                    is_best = True
+                    best_score = current_score
+                    train_patience = 0
+                else:
+                    train_patience += 1
+
+                infos['opt'] = opt
+                infos['iteration'] = i
+                infos['best_score'] = best_score
+                infos['language_state'] = current_language_state
+                infos['epoch'] = epoch
+                save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + str(i) + '.pth')
+                torch.save(model.state_dict(), save_state_path)
+                save_infos_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + 'infos_' + str(i) + '.pkl')
+                with open(save_infos_path, 'wb') as f:
+                    pickle.dump(infos, f)
+
+                if is_best:
+                    save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '-bestmodel.pth')
+                    save_infos_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + 'infos_best.pkl')
+                    torch.save(model.state_dict(), save_state_path)
+                    with open(save_infos_path, 'wb') as f:
+                        pickle.dump(infos, f)
+
+        epoch += 1
+
+
+if __name__ == '__main__':
+    opt = myopts.parse_opt()
+    train(opt=opt)
