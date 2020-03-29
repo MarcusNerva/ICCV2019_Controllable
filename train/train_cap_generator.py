@@ -142,7 +142,7 @@ def train(opt):
 
             if i % opt.visualize_every == 0:
                 train_loss = loss.detach()
-                vis.plot('train_loss', train_loss)
+                vis.plot('train_loss', train_loss.cpu())
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
