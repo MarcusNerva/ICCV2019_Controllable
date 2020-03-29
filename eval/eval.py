@@ -31,8 +31,8 @@ def language_eval(sample_seqs, groundtruth_seqs):
     print('avg_bleu_score == ', avg_bleu_score)
     avg_cider_score, cider_score = Cider().compute_score(references, predictions)
     print('avg_cider_score == ', avg_cider_score)
-    avg_meteor_score, meteor_score = Meteor().compute_score(references, predictions)
-    print('avg_meteor_score == ', avg_meteor_score)
+    # avg_meteor_score, meteor_score = Meteor().compute_score(references, predictions)
+    # print('avg_meteor_score == ', avg_meteor_score)
     avg_rouge_score, rouge_score = Rouge().compute_score(references, predictions)
     print('avg_rouge_score == ', avg_rouge_score)
 
@@ -43,7 +43,7 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_meteor_score,
     #                                                                                      avg_rouge_score,
     #                                                                                      avg_cider_score))
-    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score,  'METEOR': avg_meteor_score,   'ROUGE': avg_rouge_score}
+    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score, ''' 'METEOR': avg_meteor_score, '''  'ROUGE': avg_rouge_score}
 
 def decode_idx(seq, itow):
     ret = ''
