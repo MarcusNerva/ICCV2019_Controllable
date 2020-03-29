@@ -109,8 +109,8 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
 
     language_state = language_eval(total_prediction, total_groundtruth)
     # sentence = decode_idx(total_prediction[0], id_word)
-    print('######take a look at consequence#######')
-    print(total_prediction[:10])
+    # print('######take a look at consequence#######')
+    # print(total_prediction[:10])
 
     return loss_sum / loss_number, language_state
 

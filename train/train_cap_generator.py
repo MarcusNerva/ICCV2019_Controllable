@@ -15,6 +15,7 @@ import myopts
 from models.describer_generator import Caption_generator
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
 from visualize import Visualizer
+from torchnet import meter
 from collections import OrderedDict
 
 def numbers_to_str(numbers):
@@ -94,9 +95,11 @@ def train(opt):
     optimizer = optim.Adam(model.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     train_patience = 0
     epoch = 0
+    loss_meter = meter.AverageValueMeter()
 
     while True:
         if train_patience > opt.patience: break
+        loss_meter.reset()
         if opt.learning_rate_decay_start != -1 and epoch >= opt.learning_rate_decay_start and opt.optim == 'adam':
             frac = int((epoch - opt.learning_rate_decay_start) / opt.learning_rate_decay_every)
             decay_factor = opt.learning_rate_decay_rate ** frac
@@ -139,10 +142,11 @@ def train(opt):
             loss.backward()
             clip_gradient(optimizer, opt.grad_clip)
             optimizer.step()
+            train_loss = loss.detach()
+            loss_meter.add(train_loss.item())
 
             if i % opt.visualize_every == 0:
-                train_loss = loss.detach()
-                vis.plot('train_loss', train_loss.cpu())
+                vis.plot('train_loss', loss_meter.value()[0])
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
