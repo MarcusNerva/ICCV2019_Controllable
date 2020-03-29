@@ -147,7 +147,7 @@ def train(opt):
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
                 current_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
-                if current_score < best_score:
+                if best_score is None or current_score < best_score:
                     is_best = True
                     best_score = current_score
                     train_patience = 0
