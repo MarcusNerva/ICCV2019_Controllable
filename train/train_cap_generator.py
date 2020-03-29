@@ -78,7 +78,7 @@ def train(opt):
         assert os.path.isfile(state_dict_path), 'bestmodel don\'t exist!'
         model.load_state_dict(torch.load(state_dict_path), strict=True)
 
-        infos_path = os.path.join(opt.start_from, 'infos_' + opt.model_name + '-best.pkl')
+        infos_path = os.path.join(opt.start_from, opt.model_name + '_infos_best.pkl')
         assert os.path.isfile(infos_path), 'infos of bestmodel don\'t exist!'
         with open(infos_path, 'rb') as f:
             infos = pickle.load(f)
