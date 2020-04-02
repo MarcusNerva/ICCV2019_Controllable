@@ -120,11 +120,11 @@ def train(opt):
             opt.sample_probability = min(opt.sample_probability_increase * frac, opt.max_sample_probability)
             model.sample_probability = opt.sample_probability
 
-        # if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
-        #     sc_flag = True
-        # else:
-        #     sc_flag = False
-        sc_flag = True
+        if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
+            sc_flag = True
+        else:
+            sc_flag = False
+        # sc_flag = True
 
         for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(train_loader):
 
