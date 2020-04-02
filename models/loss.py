@@ -65,6 +65,9 @@ class RewardCriterion(nn.Module):
         reward = to_contiguous(reward).view(-1)
         mask = (seq > 0).float()
         mask = to_contiguous(torch.cat([mask.new(mask.size(0), 1).fill_(1), mask[:, :-1]], dim=1)).view(-1)
+        print(type(input))
+        print(type(reward))
+        print(type(mask))
         output = -input * reward * mask
         output = torch.sum(output) / torch.sum(mask)
         return output

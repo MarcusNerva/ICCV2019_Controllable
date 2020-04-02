@@ -175,8 +175,8 @@ def train(opt):
                 infos['best_score'] = best_score
                 infos['language_state'] = current_language_state
                 infos['epoch'] = epoch
-                save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + str(i) + '.pth')
-                torch.save(model.state_dict(), save_state_path)
+                # save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + str(i) + '.pth')
+                # torch.save(model.state_dict(), save_state_path)
                 save_infos_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + 'infos_' + str(i) + '.pkl')
                 with open(save_infos_path, 'wb') as f:
                     pickle.dump(infos, f)
