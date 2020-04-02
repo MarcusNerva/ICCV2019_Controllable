@@ -110,7 +110,7 @@ def train(opt):
 
         if opt.sample_probability_start != -1 and epoch >= opt.sample_probability_start:
             frac = int((epoch - opt.sample_probability_start) / opt.sample_probability_every)
-            opt.sample_probability = min(opt.sample_probability * frac, opt.max_sample_probability)
+            opt.sample_probability = min(opt.sample_probability_increase * frac, opt.max_sample_probability)
             model.sample_probability = opt.sample_probability
 
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
@@ -150,8 +150,9 @@ def train(opt):
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
-                current_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
-                if best_score is None or current_score < best_score:
+                current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                current_score = current_language_state['CIDEr']
+                if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score
                     train_patience = 0

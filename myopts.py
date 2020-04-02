@@ -55,6 +55,8 @@ def parse_opt():
     parser.add_argument('--learning_rate_decay_every', type=int, default=4, help='for every x iteration learning rate have to decay')
     parser.add_argument('--sample_probability_start', type=int, default=-1, help='set a sample_probability threshold for training')
     parser.add_argument('--sample_probability_every', type=int, default=4, help='for every x epochs sample_probability will decay')
+    parser.add_argument('--sample_probability_increase', type=float, default=0.05, help='how much to increase the sample_probability every time')
+    parser.add_argument('--max_sample_probability', type=float, default=0.25, help='Maximum of sample probability')
     parser.add_argument('--self_critical_after', type=int, default=-1, help='after train x epochs use self_critical strategy')
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay')
     parser.add_argument('--optim', type=str, default='adam', help='the optimizer\'s type: adam or adadelta')

@@ -89,10 +89,6 @@ def train(opt, device):
         # if torch.cuda.is_available():
         #     torch.cuda.synchronize()
         for iter, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id) in enumerate(train_loader):
-            # print('data.type is ', type(data))
-            # print('caps.type is ', type(caps))
-            # print('caps_mask.type is ', type(caps_mask))
-            # data = data.to(device)
             caps = caps.to(device)
             caps_mask = caps_mask.to(device)
             cap_classes = cap_classes.to(device)
@@ -100,23 +96,13 @@ def train(opt, device):
             feats1 = feats1.to(device)
             feat_mask = feat_mask.to(device)
             class_masks = class_masks.to(device)
-            # lens = lens.to(device)
-            # gts = gts.to(device)
-            # video_id = video_id.to(device)
-            # print('########caps.device is ', caps.device, '########')
-            # print('########caps_mask.device is ', caps_mask.device, '########')
-            # print('########feats0.device is ', feats0.device, '########')
-            # print('########feats1.device is ', feats1.device, '########')
-            # print('########feat_mask.device is ', feat_mask.device, '########')
 
             cap_classes = torch.cat([cap_classes[:, -1:], cap_classes[:, :-1]], dim=1)
             new_mask = torch.zeros_like(class_masks)
-            # print('########cap_classes.device is ', cap_classes.device, '########')
-            # print('########new_mask.device is ', new_mask.device, '########')
+
             cap_classes = cap_classes.to(device)
             new_mask = new_mask.to(device)
-            # print('!!!!!!!!!cap_classes.device is ', cap_classes.device, '!!!!!!!!!')
-            # print('!!!!!!!!!new_mask.device is ', new_mask.device, '!!!!!!!!!!')
+
             for i in range(class_masks.size(0)):
                 index = np.argwhere(class_masks.cpu().numpy()[i, :] != 0)[0][-1]
                 new_mask[i, :index + 1] = 1.0
@@ -129,14 +115,12 @@ def train(opt, device):
             clip_gradient(optimizer, opt.grad_clip)
             optimizer.step()
             train_loss = loss.detach()
-            # torch.cuda.synchronize()
-            # end = time.time()
+
             loss_meter.add(train_loss.item())
 
             if (iter + 1) % opt.visualize_every == 0:
                 vis.plot('loss', loss_meter.value()[0])
 
-            # print('opt.save_checkpoint_every == ', opt.save_checkpoint_every)
             if (iter + 1) % opt.save_checkpoint_every == 0:
                 # print('i am saving!!')
                 eval_kwargs = {}
