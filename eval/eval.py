@@ -31,8 +31,8 @@ def language_eval(sample_seqs, groundtruth_seqs):
     print('avg_bleu_score == ', avg_bleu_score)
     avg_cider_score, cider_score = Cider().compute_score(references, predictions)
     print('avg_cider_score == ', avg_cider_score)
-    # avg_meteor_score, meteor_score = Meteor().compute_score(references, predictions)
-    # print('avg_meteor_score == ', avg_meteor_score)
+    avg_meteor_score, meteor_score = Meteor().compute_score(references, predictions)
+    print('avg_meteor_score == ', avg_meteor_score)
     avg_rouge_score, rouge_score = Rouge().compute_score(references, predictions)
     print('avg_rouge_score == ', avg_rouge_score)
 
@@ -43,7 +43,7 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_meteor_score,
     #                                                                                      avg_rouge_score,
     #                                                                                      avg_cider_score))
-    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score, ''' 'METEOR': avg_meteor_score, '''  'ROUGE': avg_rouge_score}
+    return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score,  'METEOR': avg_meteor_score,   'ROUGE': avg_rouge_score}
 
 def decode_idx(seq, itow):
     ret = ''
@@ -91,42 +91,31 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         # gts = torch.Tensor(gts).cpu().numpy()
         for t in range(seqs.shape[0]):
             total_prediction.append(decode_idx(seqs[t], id_word))
-            # print('video_id[t] is ', video_id[t])
             vid_t = video_id[t].encode()
 
-            # print('type of seq[t]', type(seq[t]))
-            # print(seq[t].tolist())
             temp = []
             number = len(caption_set[vid_t])
             for x in range(number):
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
-            # print('new prediction:')
-            # print(total_prediction[-1])
-            # print('groundtruth:')
-            # print(temp)
             total_groundtruth.append(temp)
-        # break
 
     language_state = language_eval(total_prediction, total_groundtruth)
-    # sentence = decode_idx(total_prediction[0], id_word)
-    # print('######take a look at consequence#######')
-    # print(total_prediction[:10])
 
     return loss_sum / loss_number, language_state
 
-# if __name__ == '__main__':
-#     import myopts
-#     from models.describer_generator import Caption_generator
-#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#     opt = myopts.parse_opt()
-#     train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt)
-#     model = Caption_generator(opt)
-#     model = model.to(device)
-#     classify_crit = ClassifierCriterion()
-#     crit = LanguageModelCriterion()
-#     eval_kwargs = {}
-#     eval_kwargs.update(vars(opt))
-#     # print('number of words is ', get_nwords(opt.data_path))
-#     avg_loss, language_state = eval(model, crit, classify_crit, valid_dataset, eval_kwargs)
-#     print('avg_loss is ', avg_loss)
-#     print('language_state is ', language_state)
+if __name__ == '__main__':
+    import myopts
+    from models.describer_generator import Caption_generator
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    opt = myopts.parse_opt()
+    train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt)
+    model = Caption_generator(opt)
+    model = model.to(device)
+    classify_crit = ClassifierCriterion()
+    crit = LanguageModelCriterion()
+    eval_kwargs = {}
+    eval_kwargs.update(vars(opt))
+    # print('number of words is ', get_nwords(opt.data_path))
+    avg_loss, language_state = eval(model, crit, classify_crit, valid_dataset, eval_kwargs)
+    print('avg_loss is ', avg_loss)
+    print('language_state is ', language_state)
