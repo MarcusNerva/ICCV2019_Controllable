@@ -4,7 +4,7 @@ import sys
 import os
 sys.path.append('../')
 from models.describer_generator import Caption_generator
-from eval.eval import eval
+from .eval import eval
 from data.dataset import load_dataset_cap, get_itow
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
 import myopts
