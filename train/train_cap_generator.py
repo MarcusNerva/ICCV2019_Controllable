@@ -144,7 +144,10 @@ def train(opt):
                 loss_cate = classify_crit(categories, cap_classes, caps_mask, class_masks)
                 loss = loss_words + opt.weight_class * loss_cate
             else:
-                probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, vars(opt))
+                sample_dict = {}
+                sample_dict.update(vars(opt))
+                sample_dict.update({'sample_max':0})
+                probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
                 reward = get_self_critical_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
