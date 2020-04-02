@@ -147,7 +147,7 @@ def train(opt):
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, vars(opt))
                 reward = get_self_critical_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
                 reward = torch.from_numpy(reward).float()
-                reward.to(device)
+                reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
             loss.backward()
             clip_gradient(optimizer, opt.grad_clip)
