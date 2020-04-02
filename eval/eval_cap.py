@@ -49,6 +49,7 @@ def decode_idx(seq, itow):
     ret = ''
     length = seq.shape[0]
     for i in range(length):
+        if seq[i] == 0: continue
         if i > 0: ret += ' '
         ret += itow[seq[i]]
     return ret

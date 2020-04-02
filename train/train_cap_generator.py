@@ -21,9 +21,10 @@ from collections import OrderedDict
 def numbers_to_str(numbers):
     ret = ''
     length = len(numbers)
+    is_tensor = (type(numbers) == torch.Tensor)
     for i in range(length):
         if numbers[i] == 0: break
-        ret += str(numbers[i]) + ' '
+        ret += str(numbers[i] if not is_tensor else numbers[i].item()) + ' '
     return ret.strip()
 
 def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtruth, probability_sample):
@@ -42,8 +43,14 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     for i in range(batch_size, double_batch_size):
         res[i] = [numbers_to_str(greedy_sample[i - batch_size])]
 
-    for i in range(double_batch_size):
-        gts[i] = [numbers_to_str(groundtruth[i][j]) for j in range(groundtruth.size(1))]
+    length = len(groundtruth[0])
+    for i in range(batch_size):
+        gts[i] = [numbers_to_str(groundtruth[i][j]) for j in range(length)]
+    gts = {i:gts[i % batch_size] for i in range(double_batch_size)}
+    assert len(gts.keys()) == len(res.keys()), 'len of gts.keys is not equal to that of res.keys'
+    # print('length of res.keys() is ', len(res.keys()), ' res[0] ', res[0])
+    # print(gts)
+    # print('length of gts.keys() is ', len(gts.keys()), 'length of gts[0] is ', len(gts[0]))
     avg_cider_score, cider_score = Cider().compute_score(gts=gts, res=res)
     cider_score = np.array(cider_score)
     reward = cider_score[:batch_size] - cider_score[batch_size:]
@@ -113,10 +120,11 @@ def train(opt):
             opt.sample_probability = min(opt.sample_probability_increase * frac, opt.max_sample_probability)
             model.sample_probability = opt.sample_probability
 
-        if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
-            sc_flag = True
-        else:
-            sc_flag = False
+        # if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
+        #     sc_flag = True
+        # else:
+        #     sc_flag = False
+        sc_flag = True
 
         for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(train_loader):
 
@@ -138,6 +146,8 @@ def train(opt):
             else:
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, vars(opt))
                 reward = get_self_critical_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
+                reward = torch.from_numpy(reward).float()
+                reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
             loss.backward()
             clip_gradient(optimizer, opt.grad_clip)
