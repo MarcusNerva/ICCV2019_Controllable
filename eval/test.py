@@ -20,5 +20,5 @@ if __name__ == '__main__':
     model.to(device)
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
-    avg_loss, language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+    avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
     print(language_state)
