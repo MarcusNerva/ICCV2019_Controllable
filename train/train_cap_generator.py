@@ -10,7 +10,7 @@ sys.path.append('../')
 sys.path.append('../coco-caption/')
 from pycocoevalcap.cider.cider import Cider
 from data.dataset import load_dataset_cap, collate_fn_cap
-from eval.eval import eval
+from eval.eval_cap import eval
 import myopts
 from models.describer_generator import Caption_generator
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
