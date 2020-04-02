@@ -94,7 +94,7 @@ def train(opt):
     model.train()
     optimizer = optim.Adam(model.parameters(), lr=opt.learning_rate, weight_decay=opt.weight_decay)
     train_patience = 0
-    epoch = 0
+    epoch = infos.get('epoch', 0)
     loss_meter = meter.AverageValueMeter()
 
     while True:
