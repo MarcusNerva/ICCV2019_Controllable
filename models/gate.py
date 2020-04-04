@@ -48,7 +48,7 @@ class Fusion(nn.Module):
         self.feat1_size = feat1_size
         self.feat2_size = feat2_size
         self.output_size = output_size
-        self.drop_lm = 0.5
+        self.drop_lm = drop_lm
         self.activity_fn = getattr(nn, activity_fn)()
 
         self.fuse = nn.Sequential(nn.Linear(self.feat1_size + self.feat2_size, self.output_size),

@@ -41,10 +41,12 @@ class Caption_generator(nn.Module):
         self.state_init_h1 = nn.Linear(self.visual_size, self.rnn_size)
         self.state_init_c1 = nn.Linear(self.visual_size, self.rnn_size)
 
+        self.init_weights()
+
     def init_weights(self):
         initrange = 0.1
         self.embed.weight.data.uniform_(-initrange, initrange)
-        init.xavier_uniform_(self.logit.weight.data)
+        self.logit.weight.data.uniform_(-initrange, initrange)
         self.logit.bias.data.fill_(0)
 
     def init_hidden(self, feat, feat_mask):

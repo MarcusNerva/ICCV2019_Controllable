@@ -456,11 +456,11 @@ class Opt_stub:
 if __name__=='__main__':
     opt = Opt_stub()
     # print('n_words is ', get_nwords(opt.data_path))
-    pos_train_dataset, pos_valid_dataset, pos_test_dataset = load_dataset_pos(opt=opt)
-#     cap_train_dataset, cap_valid_dataset, cap_test_dataset = load_dataset_cap(opt=opt)
+    # pos_train_dataset, pos_valid_dataset, pos_test_dataset = load_dataset_pos(opt=opt)
+    cap_train_dataset, cap_valid_dataset, cap_test_dataset = load_dataset_cap(opt=opt)
 #
     # pos_trainloader = DataLoader(pos_train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_pos)
-    pos_validloader = DataLoader(pos_valid_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_pos)
+    # pos_validloader = DataLoader(pos_valid_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_pos)
     # pos_testloader = DataLoader(pos_test_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_pos)
 #
 #     cap_trainloader = DataLoader(cap_train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
@@ -481,25 +481,25 @@ if __name__=='__main__':
     #         # print('gts.shape == ', np.array(gts).shape)
     #         print('image_id.shape == ', np.array(image_id).shape)
 
-    print("=================now is valid=====================")
-    for i, (data, caps, caps_mask, cap_classes, class_masks, feats1, feats2, feat_mask, lens, gts, image_id) in enumerate(pos_validloader):
-        if i % 100 == 0:
-            print('data.shape == ', np.array(data).shape)
-            print('caps.shape == ', np.array(caps).shape)
-            print('caps_mask.shape == ', np.array(caps_mask).shape)
-            # print('cap_classes.shape == ', np.array(cap_classes).shape)
-            # print(cap_classes)
-            print(class_masks)
-            print('class_masks.data[0, :] == ', class_masks.data[0, :])
-            print(np.argwhere(class_masks.data[0, :] != 0))
-            print('class_masks.shape == ', class_masks.shape)
-            print('feats1.shape == ', np.array(feats1).shape)
-            print('feats2.shape == ', np.array(feats2).shape)
-            print('feat_mask.shape == ', np.array(feat_mask).shape)
-            print('lens.shape == ', np.array(lens).shape)
-            # print('gts.shape == ', np.array(gts).shape)
-            print(gts)
-            print('image_id.shape == ', np.array(image_id).shape)
+    # print("=================now is valid=====================")
+    # for i, (data, caps, caps_mask, cap_classes, class_masks, feats1, feats2, feat_mask, lens, gts, image_id) in enumerate(pos_validloader):
+    #     if i % 100 == 0:
+    #         print('data.shape == ', np.array(data).shape)
+    #         print('caps.shape == ', np.array(caps).shape)
+    #         print('caps_mask.shape == ', np.array(caps_mask).shape)
+    #         # print('cap_classes.shape == ', np.array(cap_classes).shape)
+    #         # print(cap_classes)
+    #         print(class_masks)
+    #         print('class_masks.data[0, :] == ', class_masks.data[0, :])
+    #         print(np.argwhere(class_masks.data[0, :] != 0))
+    #         print('class_masks.shape == ', class_masks.shape)
+    #         print('feats1.shape == ', np.array(feats1).shape)
+    #         print('feats2.shape == ', np.array(feats2).shape)
+    #         print('feat_mask.shape == ', np.array(feat_mask).shape)
+    #         print('lens.shape == ', np.array(lens).shape)
+    #         # print('gts.shape == ', np.array(gts).shape)
+    #         print(gts)
+    #         print('image_id.shape == ', np.array(image_id).shape)
     #
     # print("=================now is testing=====================")
     # for i, (data, caps, caps_mask, cap_classes, class_masks, feats1, feats2, feat_mask, lens, gts, image_id) in enumerate(pos_testloader):
