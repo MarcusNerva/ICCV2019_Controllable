@@ -13,6 +13,7 @@ from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from torch.utils.data import DataLoader
+import random
 
 def language_eval(sample_seqs, groundtruth_seqs):
     assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs!'
@@ -101,6 +102,10 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
             total_groundtruth.append(temp)
 
     language_state = language_eval(total_prediction, total_groundtruth)
+    length = len(total_prediction)
+    store = list(range(length))
+    samples = random.sample(store, 20)
+    print(total_prediction[samples])
 
     return loss_sum / loss_number, language_state
 
