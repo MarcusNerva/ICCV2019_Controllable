@@ -105,7 +105,8 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
     length = len(total_prediction)
     store = list(range(length))
     samples = random.sample(store, 20)
-    print(total_prediction[samples])
+    for idx in samples:
+        print(total_prediction[idx])
 
     return loss_sum / loss_number, language_state
 
