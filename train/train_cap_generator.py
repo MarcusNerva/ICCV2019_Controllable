@@ -54,7 +54,7 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     avg_cider_score, cider_score = Cider().compute_score(gts=gts, res=res)
     cider_score = np.array(cider_score)
     reward = cider_score[:batch_size] - cider_score[batch_size:]
-    reward = np.repeat(reward[:, np.newaxis], [seq_length], axis=1)
+    reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
 def set_lr(optimizer, lr):
@@ -160,6 +160,8 @@ def train(opt):
 
             if i % opt.visualize_every == 0:
                 vis.plot('train_loss', loss_meter.value()[0])
+                information = 'category loss: ' + loss_cate.detach().item() if not sc_flag else 'reward is: ' + loss.cpu().detach().item()
+                vis.log(information, 'loss information')
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
