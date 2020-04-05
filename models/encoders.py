@@ -92,7 +92,7 @@ class Encoder_two_fc(nn.Module):
             out_feats1.append(gate1)
         out_feats0 = torch.cat([item.unsqueeze(1) for item in out_feats0], dim=1)
         out_feats1 = torch.cat([item.unsqueeze(1) for item in out_feats1], dim=1)
-        ret = self.fuse(out_feats0, out_feats1, feat_mask)
+        ret = self.fuse(out_feats0, out_feats1)
         return ret
 
 # class Opt_stub(object):
