@@ -160,7 +160,7 @@ def train(opt):
 
             if i % opt.visualize_every == 0:
                 vis.plot('train_loss', loss_meter.value()[0])
-                information = 'category loss: ' + loss_cate.detach().item() if not sc_flag else 'reward is: ' + loss.cpu().detach().item()
+                information = 'category loss: ' + str(loss_cate.detach().item()) if not sc_flag else 'reward is: ' + str(loss.cpu().detach().item())
                 vis.log(information, 'loss information')
 
             is_best = False
