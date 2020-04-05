@@ -161,13 +161,13 @@ def train(opt):
             if i % opt.visualize_every == 0:
                 vis.plot('train_loss', loss_meter.value()[0])
                 information = 'category loss: ' + str(loss_cate.detach().item()) if not sc_flag else 'reward is: ' + str(loss.cpu().detach().item())
-                vis.log(information, 'loss information')
+                vis.log(information)
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
                 current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 current_score = current_language_state['CIDEr']
-                vis.log(current_score)
+                vis.log('current_cider is ' + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score
