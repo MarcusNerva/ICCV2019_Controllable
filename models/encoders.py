@@ -53,13 +53,13 @@ class Encoder_two_fc(nn.Module):
 
         embed_feat0 = to_contiguous(embed_feat0)
         embed_feat0 = embed_feat0.view(batch_size, length, -1)
-        embed_feat0 = self.dropout(embed_feat0)
+        embed_feat0 = self.dropout(embed_feat0) * feat_mask.unsqueeze(-1)
         feat0_init_state = self.init_hidden(batch_size)
         # feat0_init_state = feat0_init_state.to(device)
 
         embed_feat1 = to_contiguous(embed_feat1)
         embed_feat1 = embed_feat1.view(batch_size, length, -1)
-        embed_feat1 = self.dropout(embed_feat1)
+        embed_feat1 = self.dropout(embed_feat1) * feat_mask.unsqueeze(-1)
         feat1_init_state = self.init_hidden(batch_size)
         # feat1_init_state = feat1_init_state.to(device)
 

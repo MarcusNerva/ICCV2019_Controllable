@@ -101,8 +101,8 @@ class Pos_decoder(nn.Module):
         alpha = self.h2a(state[0][-1]).unsqueeze(1) + self.v2a(visual_feat)
         # print('alpha.shape == ', alpha.shape)
         e = self.to_e(torch.tanh(alpha))
-        e = e.squeeze(-1)
-        e = torch.softmax(e, dim=1).unsqueeze(-1)
+        e = e.transpose(1, 0)
+        e = torch.softmax(e, dim=0).transpose(1, 0)
         atten_visual_feat = e * visual_feat
         atten_visual_feat = torch.sum(atten_visual_feat, dim=1)
 
@@ -132,7 +132,7 @@ class Describe_decoder(nn.Module):
         assert len(state) == 2, 'input parameters state expect a list with 2 elements'
         state_0, state_1 = state[0], state[1]
 
-        part0 = self.h2a(torch.cat([state_0[0][-1], state_1[0][-1]], dim=-1)).unsqueeze(1)
+        part0 = self.h2a(torch.cat([state_0[0][-1], state_1[0][-1]], dim=1)).unsqueeze(1)
         part1 = self.v2a(visual_info)
         temp = torch.tanh(part0 + part1)
         e = self.to_e(temp)

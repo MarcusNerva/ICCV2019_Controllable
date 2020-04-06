@@ -75,7 +75,7 @@ class Caption_generator(nn.Module):
                     it = seq[:, i].clone()
                 else:
                     sample_ind = sample_mask.nonzero().view(-1)
-                    it = seq[:, i].clone()
+                    it = seq[:, i].detach().clone()
                     prob_prev = torch.exp(outputs[-1].detach())
                     it.index_copy_(0, sample_ind, torch.multinomial(prob_prev, 1).view(-1).index_select(0, sample_ind))
             else:
