@@ -93,7 +93,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         # gts = torch.Tensor(gts).cpu().numpy()
         for t in range(seqs.shape[0]):
             total_prediction.append(decode_idx(seqs[t], id_word))
-            vid_t = video_id[t].encode()
+            vid_t = video_id[t]
 
             temp = []
             number = len(caption_set[vid_t])
