@@ -80,7 +80,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         cap_classes = cap_classes.to(device)
         class_masks = class_masks.to(device)
 
-        seq, seq_probabilities = model.sample(feats0, feats1, feat_mask, pos_feat)
+        seq, seq_probabilities = model.sample(feats0, feats1, feat_mask, pos_feat, eval_kwargs)
         words, category = model(feats0, feats1, feat_mask, pos_feat, caps, caps_mask)
         classify_loss = classify_crit(category, cap_classes, caps_mask, class_masks)
         language_loss = crit(words, caps, caps_mask)
