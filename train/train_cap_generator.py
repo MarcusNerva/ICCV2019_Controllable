@@ -9,7 +9,7 @@ import pickle
 sys.path.append('../')
 sys.path.append('../coco-caption/')
 from pycocoevalcap.cider.cider import Cider
-from data.dataset import load_dataset_cap, collate_fn_cap
+from data.dataset import load_dataset_cap, collate_fn_cap, get_nwords, get_nclasses
 from eval.eval_cap import eval
 import myopts
 from models.describer_generator import Caption_generator
@@ -69,6 +69,8 @@ def clip_gradient(optimizer, grad_clip):
 
 def train(opt):
     vis = Visualizer(env='Caption_generator')
+    opt.vocab_size = get_nwords(opt.data_path)
+    opt.category_size = get_nclasses(opt.data_path)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt=opt)
     train_loader = DataLoader(dataset=train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
@@ -107,7 +109,7 @@ def train(opt):
     while True:
         if train_patience > opt.patience: break
         loss_meter.reset()
-        if opt.learning_rate_decay_start != -1 and epoch >= opt.learning_rate_decay_start and opt.optim == 'adam':
+        if opt.learning_rate_decay_start != -1 and epoch > opt.learning_rate_decay_start:
             frac = int((epoch - opt.learning_rate_decay_start) / opt.learning_rate_decay_every)
             decay_factor = opt.learning_rate_decay_rate ** frac
             opt.current_lr = opt.learning_rate * decay_factor
@@ -115,9 +117,9 @@ def train(opt):
         else:
             opt.current_lr = opt.learning_rate
 
-        if opt.sample_probability_start != -1 and epoch >= opt.sample_probability_start:
-            frac = int((epoch - opt.sample_probability_start) / opt.sample_probability_every)
-            opt.sample_probability = min(opt.sample_probability_increase * frac, opt.max_sample_probability)
+        if opt.scheduled_sampling_start != -1 and epoch > opt.scheduled_sampling_start:
+            frac = int((epoch - opt.scheduled_sampling_start) / opt.scheduled_sampling_increase_every)
+            opt.sample_probability = min(opt.scheduled_sampling_increase_probability * frac, opt.scheduled_sampling_max_probability)
             model.sample_probability = opt.sample_probability
 
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:

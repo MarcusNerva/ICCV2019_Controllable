@@ -120,8 +120,8 @@ class Dset_train(Dataset):
         data_name_list = load_pkl(train_pkl)
         caps = load_pkl(cap_pkl)
         wtoi = load_pkl(wtoi_path)
-        wtoi['<EOS>'] = 0
-        wtoi['<UNK>'] = 1
+        wtoi[b'<EOS>'] = 0
+        wtoi[b'<UNK>'] = 1
         wtoi_keys = wtoi.keys()
         self.wtoi = wtoi
         filt_word_cateid, word_cate, cate_id, cate_word, unmasked_cateid = filt_word_category(cate_pkl, wtoi)
@@ -131,8 +131,7 @@ class Dset_train(Dataset):
         temp_cap_list = []
         # print(data_name_list[0].decode())
         for i, ID in enumerate(data_name_list):
-            vidid, capid = ID.decode().split('_')
-            vidid = vidid.encode()
+            vidid, capid = ID.split(b'_')
             temp_cap_list.append(caps[vidid][int(capid)])
 
         # 将bytes类型[b'']看作是被加密的类型, bytes->str需要解密[decode()], 而str->bytes需要加密[encode()]
@@ -155,8 +154,7 @@ class Dset_train(Dataset):
         gts_list = []
         for i, ID in enumerate(data_list):
             sub_gts_list = []
-            vidid, _ = ID.decode().split('_')
-            vidid = vidid.encode()
+            vidid, _ = ID.split(b'_')
             for cap in caps[vidid]:
                 token = cap[b'tokenized'].split()
                 numbered = [ wtoi[w] if w in wtoi_keys else 1 for w in token ]
@@ -184,16 +182,16 @@ class Dset_train(Dataset):
         class_mask = self.cap_list[idx]['category_mask']
         gts = self.gts_list[idx]
 
-        feat0 = self.feat0_store[data.decode().split('_')[0]][:]
+        feat0 = self.feat0_store[data.split(b'_')[0]][:]
         feat0 = get_sub_frames(feat0, self.K)
         feat0 = torch.from_numpy(feat0).float()
 
-        feat1 = self.feat1_store[data.decode().split('_')[0]][:]
+        feat1 = self.feat1_store[data.split(b'_')[0]][:]
         feat1 = get_sub_frames(feat1, self.K)
         feat1 = torch.from_numpy(feat1).float()
 
         if self.pos_store is not None:
-            pos_feat = self.pos_store[data.decode().split('_')[0]]['states'][:]
+            pos_feat = self.pos_store[data.split(b'_')[0]]['states'][:]
             pos_feat = pos_feat[-1]
             pos_feat = torch.from_numpy(pos_feat).float()
         else:
@@ -220,8 +218,8 @@ class Dset_test(Dataset):
         data_name_list = load_pkl(test_pkl)
         caps = load_pkl(cap_pkl)
         wtoi = load_pkl(wtoi_path)
-        wtoi['<EOS>'] = 0
-        wtoi['<UNK>'] = 1
+        wtoi[b'<EOS>'] = 0
+        wtoi[b'<UNK>'] = 1
         wtoi_keys = wtoi.keys()
         self.wtoi = wtoi
         filt_word_cateid, word_cate, cate_id, cate_word, unmasked_cateid = filt_word_category(cate_pkl, wtoi)
@@ -231,8 +229,7 @@ class Dset_test(Dataset):
         temp_cap_list = []
         # print(data_name_list[0].decode())
         for i, ID in enumerate(data_name_list):
-            vidid, capid = ID.decode().split('_')
-            vidid = vidid.encode()
+            vidid, capid = ID.split(b'_')
             temp_cap_list.append(caps[vidid][int(capid)])
 
         data_list = []
@@ -254,8 +251,8 @@ class Dset_test(Dataset):
         tmp_vidname = []
         tmp_cap = []
         for data, cap in zip(data_list, cap_list):
-            if data.decode().split('_')[0] not in tmp_vid:
-                tmp_vid.append(data.decode().split('_')[0])
+            if data.split(b'_')[0] not in tmp_vid:
+                tmp_vid.append(data.split(b'_')[0])
                 tmp_vidname.append(data)
                 tmp_cap.append(cap)
         data_list = tmp_vidname
@@ -264,8 +261,7 @@ class Dset_test(Dataset):
         gts_list = []
         for i, ID in enumerate(data_list):
             sub_gts_list = []
-            vidid, _ = ID.decode().split('_')
-            vidid = vidid.encode()
+            vidid, _ = ID.split(b'_')
             for cap in caps[vidid]:
                 token = cap[b'tokenized'].split()
                 numbered = [ wtoi[w] if w in wtoi_keys else 1 for w in token ]
@@ -297,11 +293,11 @@ class Dset_test(Dataset):
         # keys = self.feat0_store.keys()
         # print([key for key in keys])
         # print([type(key) for key in keys])
-        feat0 = self.feat0_store[data.decode().split('_')[0]][:]
+        feat0 = self.feat0_store[data.split(b'_')[0]][:]
         feat0 = get_sub_frames(feat0, self.K)
         feat0 = torch.from_numpy(feat0).float()
 
-        feat1 = self.feat1_store[data.decode().split('_')[0]][:]
+        feat1 = self.feat1_store[data.split(b'_')[0]][:]
         feat1 = get_sub_frames(feat1, self.K)
         feat1 = torch.from_numpy(feat1).float()
 
@@ -309,7 +305,7 @@ class Dset_test(Dataset):
         # print('$$$$$$$$feat_mask.shape is ', feat_mask.shape)
 
         if self.pos_store is not None:
-            pos_feat = self.pos_store[data.decode().split('_')[0]]['states'][:]
+            pos_feat = self.pos_store[data.split(b'_')[0]]['states'][:]
             pos_feat = pos_feat[-1]
             pos_feat = torch.from_numpy(pos_feat).float()
         else:
@@ -355,7 +351,7 @@ def collate_fn_pos(batch):
     class_masks = torch.FloatTensor(class_masks)
 
     gts = [torch.from_numpy(x).long() for x in gts]
-    video_id = [i.decode().split('_')[0] for i in data]
+    video_id = [i.split(b'_')[0] for i in data]
 
     return data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, lens, gts, video_id
 
@@ -395,7 +391,7 @@ def collate_fn_cap(batch):
     class_masks = torch.FloatTensor(class_masks)
 
     gts = [torch.from_numpy(x).long() for x in gts]
-    video_id = [i.decode().split('_')[0] for i in data]
+    video_id = [i.split(b'_')[0] for i in data]
 
     return data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id
 

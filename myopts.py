@@ -3,12 +3,12 @@ import argparse
 def parse_opt():
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument('--data_path', type=str,
-    #                     default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
-    #                     help='the path of the data')
     parser.add_argument('--data_path', type=str,
-                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data/',
+                        default='/Users/bismarck/PycharmProjects/ICCV2019_Controllable/data',
                         help='the path of the data')
+    # parser.add_argument('--data_path', type=str,
+    #                     default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data/',
+    #                     help='the path of the data')
     # parser.add_argument('--start_from', type=str,
     #                     default=None,
     #                     help='continue training from saved model at this path')
@@ -21,7 +21,7 @@ def parse_opt():
     parser.add_argument('--checkpoint_path', type=str,
                         default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/checkpoints',
                         help='the path of saving a trained model and it\'s information')
-    parser.add_argument('--feat_K', type=int, default=30,
+    parser.add_argument('--feat_K', type=int, default=20,
                         help=' the number of feats(frames) take out from a video')
 
     # Model settings
@@ -37,7 +37,7 @@ def parse_opt():
     parser.add_argument('--pos_size', type=int, default=512, help='size of the pos feature')
     parser.add_argument('--activity_fn', type=str, default='ReLU', help='ReLU, Tanh, Sigmoid...')
     parser.add_argument('--weight_class', type=float, default=0.0)
-    parser.add_argument('--seed', type=int, default=0, help='the random seed')
+    parser.add_argument('--seed', type=int, default=1024, help='the random seed')
 
     # General settings
     parser.add_argument('--max_epochs', type=int, default=3000, help='number of epochs')
@@ -56,10 +56,11 @@ def parse_opt():
     parser.add_argument('--learning_rate_decay_every', type=int, default=4, help='for every x iteration learning rate have to decay')
     parser.add_argument('--learning_rate_decay_rate', type=float, default=0.5)
 
-    parser.add_argument('--sample_probability_start', type=int, default=-1, help='set a sample_probability threshold for training')
-    parser.add_argument('--sample_probability_every', type=int, default=4, help='for every x epochs sample_probability will decay')
-    parser.add_argument('--sample_probability_increase', type=float, default=0.05, help='how much to increase the sample_probability every time')
-    parser.add_argument('--max_sample_probability', type=float, default=0.25, help='Maximum of sample probability')
+    parser.add_argument('--scheduled_sampling_start', type=int, default=-1, help='after x iteration to start decay groundtruth probability')
+    parser.add_argument('--scheduled_sampling_increase_every', type=int, default=5, help='every x iterations to increase scheduled_sampling')
+    parser.add_argument('--scheduled_sampling_increase_probability', type=float, default=0.05, help='how much to increase the scheduled sampling')
+    parser.add_argument('--scheduled_sampling_max_probability', type=float, default=0.25, help='Maximum of scheduled_sampling_probability')
+
     parser.add_argument('--self_critical_after', type=int, default=-1, help='after train x epochs use self_critical strategy')
     parser.add_argument('--weight_decay', type=float, default=0, help='weight decay')
     parser.add_argument('--optim', type=str, default='adam', help='the optimizer\'s type: adam or adadelta')

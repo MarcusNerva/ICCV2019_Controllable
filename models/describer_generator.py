@@ -231,10 +231,10 @@ class Caption_generator(nn.Module):
             if t == 0:
                 it = feats.new(batch_size).long().zero_()
             elif sample_max:
-                sampleLogprobs, it = torch.max(log_probabilities, 1)
+                sampleLogprobs, it = torch.max(log_probabilities.detach(), 1)
                 it = it.view(-1).long()
             else:
-                prev_probabilities = torch.exp(torch.div(log_probabilities, temperature))
+                prev_probabilities = torch.exp(torch.div(log_probabilities.detach(), temperature))
                 it = torch.multinomial(prev_probabilities, 1)
                 sampleLogprobs = log_probabilities.gather(1, it)
                 it = it.view(-1).long()
