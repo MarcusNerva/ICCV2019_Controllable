@@ -35,10 +35,23 @@ class Encoder_two_fc(nn.Module):
         self.fuse = Fusion(seed=opt.seed, feat1_size=self.rnn_size, feat2_size=self.rnn_size, output_size=self.rnn_size, drop_lm=self.drop_probability, activity_fn=opt.activity_fn)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+        nn.init.orthogonal_(self.lstmcell_rgb.weight_hh)
+        nn.init.orthogonal_(self.lstmcell_rgb.weight_ih)
+        self.lstmcell_rgb.bias_ih.zero_()
+        self.lstmcell_rgb.bias_hh.zero_()
+
+        nn.init.orthogonal_(self.lstmcell_opfl.weight_hh)
+        nn.init.orthogonal_(self.lstmcell_opfl.weight_ih)
+        self.lstmcell_opfl.bias_hh.zero_()
+        self.lstmcell_opfl.bias_ih.zero_()
+
+
     def init_hidden(self, batch_size):
         h_size = (batch_size, self.rnn_size)
         h_0 = torch.FloatTensor(*h_size).zero_()
         c_0 = torch.FloatTensor(*h_size).zero_()
+        # nn.init.xavier_uniform_(h_0)
+        # nn.init.xavier_uniform_(c_0)
         # print(self.device)
         h_0 = h_0.to(self.device)
         c_0 = c_0.to(self.device)

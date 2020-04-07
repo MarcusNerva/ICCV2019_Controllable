@@ -44,9 +44,12 @@ class Caption_generator(nn.Module):
         self.init_weights()
 
     def init_weights(self):
-        initrange = 0.1
-        self.embed.weight.data.uniform_(-initrange, initrange)
-        self.logit.weight.data.uniform_(-initrange, initrange)
+        # initrange = 0.1
+        # self.embed.weight.data.uniform_(-initrange, initrange)
+        # self.logit.weight.data.uniform_(-initrange, initrange)
+        # self.logit.bias.data.fill_(0)
+        nn.init.xavier_uniform_(self.embed.weight.data, gain=nn.init.calculate_gain('relu'))
+        nn.init.xavier_uniform_(self.logit.weight.data, gain=nn.init.calculate_gain('relu'))
         self.logit.bias.data.fill_(0)
 
     def init_hidden(self, feat, feat_mask):
