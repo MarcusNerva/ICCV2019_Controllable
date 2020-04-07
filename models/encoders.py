@@ -35,15 +35,15 @@ class Encoder_two_fc(nn.Module):
         self.fuse = Fusion(seed=opt.seed, feat1_size=self.rnn_size, feat2_size=self.rnn_size, output_size=self.rnn_size, drop_lm=self.drop_probability, activity_fn=opt.activity_fn)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        nn.init.orthogonal_(self.lstmcell_rgb.weight_hh)
-        nn.init.orthogonal_(self.lstmcell_rgb.weight_ih)
-        self.lstmcell_rgb.bias_ih.data.zero_()
-        self.lstmcell_rgb.bias_hh.data.zero_()
-
-        nn.init.orthogonal_(self.lstmcell_opfl.weight_hh)
-        nn.init.orthogonal_(self.lstmcell_opfl.weight_ih)
-        self.lstmcell_opfl.bias_hh.data.zero_()
-        self.lstmcell_opfl.bias_ih.data.zero_()
+        # nn.init.orthogonal_(self.lstmcell_rgb.weight_hh)
+        # nn.init.orthogonal_(self.lstmcell_rgb.weight_ih)
+        # self.lstmcell_rgb.bias_ih.data.zero_()
+        # self.lstmcell_rgb.bias_hh.data.zero_()
+        #
+        # nn.init.orthogonal_(self.lstmcell_opfl.weight_hh)
+        # nn.init.orthogonal_(self.lstmcell_opfl.weight_ih)
+        # self.lstmcell_opfl.bias_hh.data.zero_()
+        # self.lstmcell_opfl.bias_ih.data.zero_()
 
 
     def init_hidden(self, batch_size):
