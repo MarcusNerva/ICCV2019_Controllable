@@ -163,7 +163,7 @@ def train(opt):
             if i % opt.visualize_every == 0:
                 vis.plot('train_loss', loss_meter.value()[0])
                 information = 'best_score is ' + (str(best_score) if best_score is not None else '0.0')
-                information += (' reward is ' if sc_flag else ' loss is ') + train_loss.item()
+                information += (' reward is ' if sc_flag else ' loss is ') + str(train_loss.item())
                 vis.log(information)
 
             is_best = False
