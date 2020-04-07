@@ -37,13 +37,13 @@ class Encoder_two_fc(nn.Module):
 
         nn.init.orthogonal_(self.lstmcell_rgb.weight_hh)
         nn.init.orthogonal_(self.lstmcell_rgb.weight_ih)
-        self.lstmcell_rgb.bias_ih.zero_()
-        self.lstmcell_rgb.bias_hh.zero_()
+        self.lstmcell_rgb.bias_ih.data.zero_()
+        self.lstmcell_rgb.bias_hh.data.zero_()
 
         nn.init.orthogonal_(self.lstmcell_opfl.weight_hh)
         nn.init.orthogonal_(self.lstmcell_opfl.weight_ih)
-        self.lstmcell_opfl.bias_hh.zero_()
-        self.lstmcell_opfl.bias_ih.zero_()
+        self.lstmcell_opfl.bias_hh.data.zero_()
+        self.lstmcell_opfl.bias_ih.data.zero_()
 
 
     def init_hidden(self, batch_size):
