@@ -162,10 +162,8 @@ def train(opt):
 
             if i % opt.visualize_every == 0:
                 vis.plot('train_loss', loss_meter.value()[0])
-                information = best_score if best_score is not None else 0.0
-                information = str(information) + ' loss_mean is : ' + str(loss_meter.value()[0])
-                if sc_flag:
-                    information += ' ' + str(reward)
+                information = 'best_score is ' + (str(best_score) if best_score is not None else '0.0')
+                information += (' reward is ' if sc_flag else ' loss is ') + train_loss.item()
                 vis.log(information)
 
             is_best = False
@@ -185,8 +183,8 @@ def train(opt):
                 infos['best_score'] = best_score
                 infos['language_state'] = current_language_state
                 infos['epoch'] = epoch
-                # save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + str(i) + '.pth')
-                # torch.save(model.state_dict(), save_state_path)
+                save_state_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + str(i) + '.pth')
+                torch.save(model.state_dict(), save_state_path)
                 save_infos_path = os.path.join(opt.checkpoint_path, opt.model_name + '_' + 'infos_' + str(i) + '.pkl')
                 with open(save_infos_path, 'wb') as f:
                     pickle.dump(infos, f)
