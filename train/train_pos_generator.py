@@ -7,8 +7,8 @@ from torchnet import meter
 import pickle
 import os
 import sys
-import myopts
 sys.path.append('../')
+import myopts
 from data.dataset import load_dataset_pos, collate_fn_pos, get_nwords, get_nclasses
 from eval import eval_extract
 from visualize import Visualizer
