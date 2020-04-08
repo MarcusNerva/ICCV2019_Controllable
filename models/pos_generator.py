@@ -3,9 +3,10 @@ import torch.nn as nn
 import numpy as np
 import sys
 sys.path.append('../')
-from models.encoders import *
-from models.decoder import *
-from data.dataset import *
+from models.encoders import Pos_encoder_two_fc
+from models.decoder import Pos_decoder
+from models.gate import to_contiguous
+# from data.dataset import *
 from torch.utils.data import DataLoader
 from torch.utils.data import Dataset
 import myopts
@@ -62,12 +63,12 @@ class CaptionModel(nn.Module):
         opt = kwargs['opt']
         beam_size = opt.get('beam_size', 5)
         beam_seq = torch.LongTensor(beam_size, self.seq_length).zero_()
-        beam_seq_logprobs = torch.FloatTensor(beam_size, self.seq_length)
-        beam_logprobs_sum = torch.zero_(beam_size)
+        beam_seq_logprobs = torch.FloatTensor(beam_size, self.seq_length).zero_()
+        beam_logprobs_sum = torch.zeros(beam_size)
         done_beams = []
 
         for t in range(self.seq_length):
-            logprobs[:, 1] = logprobs[:, 1] - 1000
+            logprobs[:, 1] = logprobs[:, 1] - 1000.0
             beam_seq, beam_seq_logprobs, beam_logprobs_sum, state, candidates = self.beam_step(logprobsf=logprobs,
                                                                                                beam_size=beam_size,
                                                                                                t=t,
@@ -106,9 +107,9 @@ class Pos_generator(CaptionModel):
         self.num_layers = opt.num_layers
         self.drop_probability = opt.drop_probability
         self.seq_length = opt.seq_length
-        self.ss_prob = 0.0
+        self.scheduled_sample_probability = 0.0
 
-        self.encoder = Encoder_two_fc(opt=opt)
+        self.encoder = Pos_encoder_two_fc(opt=opt)
         self.decoder = Pos_decoder(opt=opt)
         self.video_embed_h0 = nn.Linear(self.visual_size, self.rnn_size)
         self.video_embed_c0 = nn.Linear(self.visual_size, self.rnn_size)
@@ -128,8 +129,8 @@ class Pos_generator(CaptionModel):
         self.logit.weight.data.uniform_(-initrange, initrange)
 
     def init_hidden_twolayers(self, feat, feat_mask):
-        feat_ = torch.from_numpy(np.sum(feat.cpu().data.numpy(), axis=1, dtype=np.float32))
-        mask_ = torch.from_numpy(np.sum(feat_mask.cpu().data.numpy(), axis=1, dtype=np.float32))
+        feat_ = torch.from_numpy(np.sum(feat.detach().cpu().numpy(), axis=1, dtype=np.float32))
+        mask_ = torch.from_numpy(np.sum(feat_mask.detach().cpu().numpy(), axis=1, dtype=np.float32))
         feat_mean = (feat_ / mask_.unsqueeze(-1)).unsqueeze(0)
         feat_mean = feat_mean.to(self.device)
         state0 = (self.video_embed_h0(feat_mean), self.video_embed_c0(feat_mean))
@@ -137,18 +138,15 @@ class Pos_generator(CaptionModel):
         return [state0, state1]
 
     def init_hidden(self, feat, feat_mask):
-        feat_ = torch.from_numpy(np.sum(feat.cpu().data.numpy(), axis=1, dtype=np.float32))
-        mask_ = torch.from_numpy(np.sum(feat_mask.cpu().data.numpy(), axis=1, dtype=np.float32))
+        feat_ = torch.from_numpy(np.sum(feat.detach().cpu().numpy(), axis=1, dtype=np.float32))
+        mask_ = torch.from_numpy(np.sum(feat_mask.detach().cpu().numpy(), axis=1, dtype=np.float32))
         feat_mean = (feat_ / mask_.unsqueeze(-1)).unsqueeze(0)
         feat_mean = feat_mean.to(self.device)
         state0 = (self.video_embed_h0(feat_mean), self.video_embed_c0(feat_mean))
-        # h0.shape == (1, beam_size, rnn_size)
         return state0
 
     def forward(self, feats_rgb, feats_opfl, feat_mask, seq, seq_mask, cap_classes, new_mask):
-        # feats_rgb.shape == feats_opfl.shape: (batch_size, feat_K, feat_size)
-        # seq: (batch_size, seq_len + 1)
-        # seq_mask: (batch_size, seq_len + 1)
+
         feats = self.encoder(feat0=feats_rgb, feat1=feats_opfl, feat_mask=feat_mask)
 
         seq = cap_classes
@@ -162,7 +160,7 @@ class Pos_generator(CaptionModel):
         # 下面采用的是teach-force
         for i in range(cap_classes.size(1)):
             it = seq[:, i].clone()
-            if i >= 1 and seq[:, i].data.sum() == 0: break
+            if i >= 1 and seq[:, i].detach().sum() == 0: break
 
             xt = self.embed(it)
             xt_mask = seq_mask[:, i].unsqueeze(1)
@@ -197,13 +195,13 @@ class Pos_generator(CaptionModel):
         for k in range(batch_size):
             feat = feats[k]
             feat = feat.expand(beam_size, feat.size(0), feat.size(1))
-            feat_mask = feat_mask[k]
+            feat_mask = feat_masks[k]
             feat_mask = feat_mask.expand(beam_size, feat_mask.size(0))
             state = self.init_hidden(feat, feat_mask)
 
-            it = feats.data.new(beam_size).long().zero_()
+            it = feats.detach().new(beam_size).long().zero_()
             xt = self.embed(it).to(self.device)
-            xt_mask = torch.ones([beam_size, 1]).float()
+            xt_mask = torch.ones([beam_size, 1]).float().to(self.device)
             output, state = self.decoder(xt, xt_mask, feat, state)
             logprobs = torch.log_softmax(self.logit(output), dim=1)
 
@@ -215,25 +213,20 @@ class Pos_generator(CaptionModel):
         return seq, seqLogprobs
 
     def sample(self, feats_rgb, feats_opfl, feat_mask, opt={}):
-        sample_max = opt.get('sample_max', True)
+        sample_max = opt.get('sample_max', 1)
         beam_size = opt.get('beam_size', 1)
         temperature = opt.get('temperature', 1.0)
 
         feats = self.encoder(feats_rgb, feats_opfl, feat_mask)
-        # print('###########feats.device is ', feats.device)
-        # print('============feats.shape is ', feats.shape, ' ============')
+
         if beam_size > 1:
             return self.beam_sample(feats, feat_mask, opt)
-        # print('Now greedy strategy is applied')
         batch_size = feats.size(0)
         state = self.init_hidden(feats, feat_mask)
-        # print('#############state[0].device is ', state[0].device)
-        # print('=============state0.shape is ', state[0].shape, ' ============')
         seq = []
         seqLogprobs = []
         collect_states = []
         collect_masks = []
-
         for t in range(self.seq_length + 1):
             if t == 0:
                 it = feats.data.new_zeros(batch_size).long()
@@ -241,10 +234,7 @@ class Pos_generator(CaptionModel):
                 sampleLogprobs, it = torch.max(logprobs.data, 1)
                 it = it.view(-1).long()
             else:
-                if temperature == 1.0:
-                    prob_prev = torch.exp(logprobs.data).cpu()
-                else:
-                    prob_prev = torch.exp(torch.div(logprobs.data, temperature)).cpu()
+                prob_prev = torch.exp(torch.div(logprobs.detach(), temperature)).cpu()
                 it = torch.multinomial(prob_prev, 1).to(self.device)
                 sampleLogprobs = logprobs.gather(1, it)
 

@@ -48,9 +48,6 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
         gts[i] = [numbers_to_str(groundtruth[i][j]) for j in range(length)]
     gts = {i:gts[i % batch_size] for i in range(double_batch_size)}
     assert len(gts.keys()) == len(res.keys()), 'len of gts.keys is not equal to that of res.keys'
-    # print('length of res.keys() is ', len(res.keys()), ' res[0] ', res[0])
-    # print(gts)
-    # print('length of gts.keys() is ', len(gts.keys()), 'length of gts[0] is ', len(gts[0]))
     avg_cider_score, cider_score = Cider().compute_score(gts=gts, res=res)
     cider_score = np.array(cider_score)
     reward = cider_score[:batch_size] - cider_score[batch_size:]

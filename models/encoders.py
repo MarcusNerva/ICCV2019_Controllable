@@ -108,6 +108,96 @@ class Encoder_two_fc(nn.Module):
         ret = self.fuse(out_feats0, out_feats1)
         return ret
 
+class Pos_encoder_two_fc(nn.Module):
+    def __init__(self, opt):
+        super(Pos_encoder_two_fc, self).__init__()
+        torch.manual_seed(opt.seed)
+        torch.cuda.manual_seed(opt.seed)
+
+        self.feat_rgb_size = opt.feat0_size
+        self.feat_opfl_size = opt.feat1_size
+        self.rnn_size = opt.rnn_size
+        self.drop_probability = opt.drop_probability
+
+        self.visual_emb_rgb = nn.Sequential(nn.Linear(self.feat_rgb_size, self.rnn_size),
+                                            nn.BatchNorm1d(self.rnn_size),
+                                            nn.ReLU(True))
+        self.visual_emb_opfl = nn.Sequential(nn.Linear(self.feat_opfl_size, self.rnn_size),
+                                             nn.BatchNorm1d(self.rnn_size),
+                                             nn.ReLU(True))
+        self.dropout = nn.Dropout(self.drop_probability)
+        self.lstmcell_rgb = nn.LSTMCell(self.rnn_size, self.rnn_size)
+        self.lstmcell_opfl = nn.LSTMCell(self.rnn_size, self.rnn_size)
+        self.fuse = Fusion(seed=opt.seed, feat1_size=self.rnn_size, feat2_size=self.rnn_size, output_size=self.rnn_size, drop_lm=self.drop_probability, activity_fn=opt.activity_fn)
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        nn.init.orthogonal_(self.lstmcell_rgb.weight_hh)
+        nn.init.orthogonal_(self.lstmcell_rgb.weight_ih)
+        self.lstmcell_rgb.bias_ih.data.zero_()
+        self.lstmcell_rgb.bias_hh.data.zero_()
+
+        nn.init.orthogonal_(self.lstmcell_opfl.weight_hh)
+        nn.init.orthogonal_(self.lstmcell_opfl.weight_ih)
+        self.lstmcell_opfl.bias_hh.data.zero_()
+        self.lstmcell_opfl.bias_ih.data.zero_()
+
+
+    def init_hidden(self, batch_size):
+        h_size = (batch_size, self.rnn_size)
+        h_0 = torch.FloatTensor(*h_size).zero_()
+        c_0 = torch.FloatTensor(*h_size).zero_()
+        # nn.init.xavier_uniform_(h_0)
+        # nn.init.xavier_uniform_(c_0)
+        # print(self.device)
+        h_0 = h_0.to(self.device)
+        c_0 = c_0.to(self.device)
+        # print('h_0.device is ', h_0.device)
+        # print('c_0.device is ', c_0.device)
+        return (h_0, c_0)
+
+    def forward(self, feat0, feat1, feat_mask):#Can I remove feat_mask ?
+        batch_size, length = feat1.size(0), feat1.size(1)
+        embed_feat0 = self.visual_emb_rgb(feat0.view(-1, feat0.size(-1)))
+        embed_feat1 = self.visual_emb_opfl(feat1.view(-1, feat1.size(-1)))
+
+        embed_feat0 = to_contiguous(embed_feat0)
+        embed_feat0 = embed_feat0.view(batch_size, length, -1)
+        embed_feat0 = self.dropout(embed_feat0) * feat_mask.unsqueeze(-1)
+        feat0_init_state = self.init_hidden(batch_size)
+        # feat0_init_state = feat0_init_state.to(device)
+
+        embed_feat1 = to_contiguous(embed_feat1)
+        embed_feat1 = embed_feat1.view(batch_size, length, -1)
+        embed_feat1 = self.dropout(embed_feat1) * feat_mask.unsqueeze(-1)
+        feat1_init_state = self.init_hidden(batch_size)
+        # feat1_init_state = feat1_init_state.to(device)
+
+        out_feats0, out_feats1 = [], []
+        # h0, c0 = feat0_init_state[0].to(self.device), feat0_init_state[1].to(self.device)
+        # h1, c1 = feat1_init_state[0].to(self.device), feat1_init_state[1].to(self.device)
+
+        h0, c0 = feat0_init_state[0], feat0_init_state[1]
+        h1, c1 = feat1_init_state[0], feat1_init_state[1]
+
+        for i in range(length):
+            input_0 = embed_feat0[:, i, :]
+            input_1 = embed_feat1[:, i, :]
+            mask = feat_mask[:, i]
+
+            h0, c0 = self.lstmcell_rgb(input_0, (h0, c0))
+            h1, c1 = self.lstmcell_opfl(input_1, (h1, c1))
+            h0 = h0 * mask.unsqueeze(-1)
+            c0 = c0 * mask.unsqueeze(-1)
+            h1 = h1 * mask.unsqueeze(-1)
+            c1 = c1 * mask.unsqueeze(-1)
+
+            out_feats0.append(h0)
+            out_feats1.append(h1)
+        out_feats0 = torch.cat([item.unsqueeze(1) for item in out_feats0], dim=1)
+        out_feats1 = torch.cat([item.unsqueeze(1) for item in out_feats1], dim=1)
+        ret = self.fuse(out_feats0, out_feats1)
+        return ret
+
 # class Opt_stub(object):
 #     def __init__(self):
 #         super(Opt_stub, self).__init__()
