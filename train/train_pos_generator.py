@@ -159,6 +159,5 @@ def train(opt):
 
 if __name__ == '__main__':
     opt = myopts.parse_opt()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    train(opt, device)
+    train(opt)
     pass
