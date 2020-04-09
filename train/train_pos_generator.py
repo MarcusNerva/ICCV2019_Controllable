@@ -125,9 +125,9 @@ def train(opt):
                 eval_kwargs.update(vars(opt))
                 val_loss = eval_extract.eval_and_extract(model, classify_crit, valid_dataset, device, 'validation', eval_kwargs, False)
                 # 此处输出的是交叉熵loss, 是一个正数, loss越小说明准确性越高, 为了转化为score我们需要加一个负号, score越大准确性越高
-                current_score = -val_loss.cpu().item()
+                current_score = val_loss.cpu().item()
                 is_best = False
-                if best_score is None or best_score < current_score:
+                if best_score is None or best_score > current_score:
                     best_score = current_score
                     is_best = True
                     train_patience = 0
