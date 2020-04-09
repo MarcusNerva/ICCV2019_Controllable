@@ -151,7 +151,6 @@ def train(opt):
                         pickle.dump(infos, f)
 
 
-
         epoch += 1
 
 
