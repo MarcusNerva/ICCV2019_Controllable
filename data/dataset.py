@@ -81,8 +81,8 @@ def filt_word_category(cate_pkl, words):
         else:
             filted_words_cateid[key] = 1
     # print('now cate\'s type is ', type(cate))
-    filted_words_cateid['<EOS>'] = 0
-    filted_words_cateid['<UNK>'] = 1
+    filted_words_cateid[b'<EOS>'] = 0
+    filted_words_cateid[b'<UNK>'] = 1
     unmasked_categoryid = [i for i in range(14)]
     return filted_words_cateid, words_category, category_id, category_words, unmasked_categoryid
 
