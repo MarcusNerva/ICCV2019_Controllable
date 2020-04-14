@@ -14,6 +14,7 @@ from pycocoevalcap.rouge.rouge import Rouge
 from torch.utils.data import DataLoader
 from allennlp.predictors.predictor import Predictor
 import random
+import time
 
 def language_eval(sample_seqs, groundtruth_seqs):
     assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs!'
@@ -46,7 +47,7 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_cider_score))
     return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score,  'METEOR': avg_meteor_score,   'ROUGE': avg_rouge_score}
 
-def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
+def semantics_eval(sample_seqs, groundtruth_seqs, is_valid=False, eval_kwargs={}):
     assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs'
 
     textual_entailment_path = eval_kwargs['textual_entailment_path']
@@ -55,17 +56,30 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
     textual_score = np.zeros(batch_size)
     print('batch_size == ', batch_size)
 
-    for i in range(batch_size):
-        hypothesis = sample_seqs[i]
+    if is_valid:
         store = []
-        for j in range(len(groundtruth_seqs[i])):
-            premise = groundtruth_seqs[i][j]
-            temp = {'hypothesis': hypothesis, 'premise': premise}
-            store.append(temp)
+        for i in range(batch_size):
+            hypothesis = sample_seqs[i]
+            for j in range(len(groundtruth_seqs[i])):
+                premise = groundtruth_seqs[i][j]
+                temp = {'hypothesis': hypothesis, 'premise': premise}
+                store.append(temp)
         result = predictor.predict_batch_json(store)
-        for j in range(len(groundtruth_seqs[i])):
-            textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
-        # print('textual_score[%d] is %f' % (i, textual_score[i]))
+        length = 10
+        for i in range(len(result)):
+            textual_score[i // length] = max(textual_score[i // length], result[i]['label_probs'][0])
+    else:
+        for i in range(batch_size):
+            hypothesis = sample_seqs[i]
+            store = []
+            for j in range(len(groundtruth_seqs[i])):
+                premise = groundtruth_seqs[i][j]
+                temp = {'hypothesis': hypothesis, 'premise': premise}
+                store.append(temp)
+            result = predictor.predict_batch_json(store)
+            for j in range(len(groundtruth_seqs[i])):
+                textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
+            # print('textual_score[%d] is %f' % (i, textual_score[i]))
 
     return textual_score.mean()
 
@@ -79,7 +93,7 @@ def decode_idx(seq, itow):
         ret += itow[seq[i]]
     return ret
 
-def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
+def eval(model, crit, classify_crit, dataset, is_valid = True, eval_kwargs={}):
     # lang_eval = eval_kwargs.get('lang_eval', 1)
     data_path = eval_kwargs.get('data_path', None)
     batch_size = eval_kwargs.get('batch_size', 64)
@@ -122,12 +136,18 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
 
             temp = []
             number = len(caption_set[vid_t])
-            for x in range(number):
+            number_store = list(range(number))
+            if eval_semantics and is_valid:
+                number_store = random.sample(number_store, 10)
+            for x in number_store:
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
 
+    # start = time.time()
     if eval_semantics:
-        textual_score = semantics_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, eval_kwargs=eval_kwargs)
+        textual_score = semantics_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, is_valid=is_valid, eval_kwargs=eval_kwargs)
+    # end = time.time()
+    # print('semantic eval takes: ', (end - start))
     language_state = language_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth)
     length = len(total_prediction)
     store = list(range(length))

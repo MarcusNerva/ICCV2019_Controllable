@@ -21,9 +21,9 @@ if __name__ == '__main__':
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
     if not opt.eval_semantics:
-        avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
+        avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, is_valid=False, eval_kwargs=vars(opt))
         print(language_state)
     else:
-        textual_score, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
+        textual_score, language_state = eval(model, crit, classify_crit, test_dataset, is_valid=False, eval_kwargs=vars(opt))
         print('textual_score is ', textual_score)
         print(language_state)

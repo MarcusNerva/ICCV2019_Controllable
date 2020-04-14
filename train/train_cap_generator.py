@@ -216,9 +216,9 @@ def train(opt):
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
                 if not opt.eval_semantics:
-                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, is_valid=True, eval_kwargs=vars(opt))
                 else:
-                    current_loss, current_language_state, current_textual_score = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                    current_textual_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_textual_score
                 vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'textual_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
