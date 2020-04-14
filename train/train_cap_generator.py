@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 import os
 import sys
 import pickle
+import random
 sys.path.append('../')
 sys.path.append('../coco-caption/')
 from pycocoevalcap.cider.cider import Cider
@@ -74,21 +75,23 @@ def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, 
         res[i] = numbers_to_str(greedy_sample[i - batch_size])
 
     length = len(groudtruth[0])
+    number_store = list(range(length))
+    number_store = random.sample(number_store, opt.random_select)
     for i in range(batch_size):
-        gts[i] = [numbers_to_str(groudtruth[i][j]) for j in range(length)]
+        gts[i] = [numbers_to_str(groudtruth[i][j]) for j in number_store]
     gts = {i: gts[i % batch_size] for i in range(double_batch_size)}
     entailment_score = np.zeros(double_batch_size)
+    store = []
 
     for i in range(double_batch_size):
         hypothesis = res[i]
-        store = []
         for j in range(len(gts[i])):
             premise = gts[i][j]
             temp_dict = {'hypothesis': hypothesis, 'premise': premise}
             store.append(temp_dict)
-        result = predictor.predict_batch_json(store)
-        for j in range(len(gts[i])):
-            entailment_score[i] = max(entailment_score[i], result[j]['label_probs'][0])
+    result = predictor.predict_batch_json(store)
+    for i in range(len(result)):
+        entailment_score[i // opt.random_select] = max(entailment_score[i // opt.random_select], result[i]['label_probs'][0])
 
     reward = entailment_score[:batch_size] - entailment_score[batch_size:]
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
