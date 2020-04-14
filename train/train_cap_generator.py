@@ -78,19 +78,17 @@ def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, 
         gts[i] = [numbers_to_str(groudtruth[i][j]) for j in range(length)]
     gts = {i: gts[i % batch_size] for i in range(double_batch_size)}
     entailment_score = np.zeros(double_batch_size)
-    store = []
-    total = double_batch_size * length
 
     for i in range(double_batch_size):
         hypothesis = res[i]
-        for j in range(length):
+        store = []
+        for j in range(len(gts[i])):
             premise = gts[i][j]
             temp_dict = {'hypothesis': hypothesis, 'premise': premise}
             store.append(temp_dict)
-    result = predictor.predict_batch_json(store)
-
-    for i in range(total):
-        entailment_score[i // length] = max(entailment_score[i // length], result[i]['label_probs'][0])
+        result = predictor.predict_batch_json(store)
+        for j in range(len(gts[i])):
+            entailment_score[i] = max(entailment_score[i], result[j]['label_probs'][0])
 
     reward = entailment_score[:batch_size] - entailment_score[batch_size:]
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)

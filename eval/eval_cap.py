@@ -52,20 +52,19 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
     textual_entailment_path = eval_kwargs['textual_entailment_path']
     predictor = Predictor.from_path(archive_path=textual_entailment_path, predictor_name='textual-entailment')
     batch_size = len(sample_seqs)
-    length = len(groundtruth_seqs[0])
     textual_score = np.zeros(batch_size)
-    store = []
 
     for i in range(batch_size):
         hypothesis = sample_seqs[i]
+        store = []
         for j in range(len(groundtruth_seqs[i])):
             premise = groundtruth_seqs[i][j]
             temp = {'hypothesis': hypothesis, 'premise': premise}
             store.append(temp)
-    result = predictor.predict_batch_json(store)
-    for i in range(len(result)):
-        score = result[i]['label_probs'][0]
-        textual_score[i // length] = max(textual_score[i // length], score)
+        result = predictor.predict_batch_json(store)
+        for j in range(len(groundtruth_seqs[i])):
+            textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
+
     return textual_score.mean()
 
 
