@@ -9,6 +9,12 @@ def parse_opt():
     parser.add_argument('--data_path', type=str,
                         default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/data/',
                         help='the path of the data')
+    # parser.add_argument('--textual_entailment_path', type=str,
+    #                     default='/Users/bismarck/Downloads/decomposable-attention-elmo-2018.02.19',
+    #                     help='the path of the textual-entailment-model')
+    parser.add_argument('--textual_entailment_path', type=str,
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/textual-entailment-model/decomposable-attention-elmo-2018.02.19',
+                        help='the path of the textual-entailment-model')
     # parser.add_argument('--start_from', type=str,
     #                     default=None,
     #                     help='continue training from saved model at this path')
@@ -66,6 +72,7 @@ def parse_opt():
     parser.add_argument('--optim', type=str, default='adam', help='the optimizer\'s type: adam or adadelta')
     # parser.add_argument('--visualize_every', type=int, default=3, help='show us loss every x iteration')
     parser.add_argument('--visualize_every', type=int, default=10, help='show us loss every x iteration')
+    parser.add_argument('--eval_semantics', type=int, default=0, help='whether eval semantics or not')
 
 
 

@@ -20,5 +20,10 @@ if __name__ == '__main__':
     model.to(device)
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
-    avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
-    print(language_state)
+    if not opt.eval_semantics:
+        avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
+        print(language_state)
+    else:
+        avg_loss, language_state, textual_score = eval(model, crit, classify_crit, test_dataset, vars(opt))
+        print(language_state)
+        print('textual_score is ', textual_score)

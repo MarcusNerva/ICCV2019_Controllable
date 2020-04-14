@@ -17,6 +17,7 @@ from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCrite
 from visualize import Visualizer
 from torchnet import meter
 from collections import OrderedDict
+from allennlp.predictors.predictor import Predictor
 
 def numbers_to_str(numbers):
     ret = ''
@@ -51,6 +52,47 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     avg_cider_score, cider_score = Cider().compute_score(gts=gts, res=res)
     cider_score = np.array(cider_score)
     reward = cider_score[:batch_size] - cider_score[batch_size:]
+    reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
+    return reward
+
+def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, pos_feat, groudtruth, probability_sample, opt):
+    predictor = Predictor.from_path(archive_path=opt.textual_entailment_path, predictor_name='textual-entailment')
+
+    batch_size = feat0.size(0)
+    double_batch_size = batch_size * 2
+    seq_length = probability_sample.size(1)
+
+    greedy_sample, _ = model.sample(feat0, feat1, feat_mask, pos_feat)
+    greedy_sample = greedy_sample.cpu().numpy()
+    probability_sample = probability_sample.cpu().numpy()
+    res = OrderedDict()
+    gts = OrderedDict()
+
+    for i in range(batch_size):
+        res[i] = numbers_to_str(probability_sample[i])
+    for i in range(batch_size, double_batch_size):
+        res[i] = numbers_to_str(greedy_sample[i - batch_size])
+
+    length = len(groudtruth[0])
+    for i in range(batch_size):
+        gts[i] = [numbers_to_str(groudtruth[i][j]) for j in range(length)]
+    gts = {i: gts[i % batch_size] for i in range(double_batch_size)}
+    entailment_score = np.zeros(double_batch_size)
+    store = []
+    total = double_batch_size * length
+
+    for i in range(double_batch_size):
+        hypothesis = res[i]
+        for j in range(length):
+            premise = gts[i][j]
+            temp_dict = {'hypothesis': hypothesis, 'premise': premise}
+            store.append(temp_dict)
+    result = predictor.predict_batch_json(store)
+
+    for i in range(total):
+        entailment_score[i // length] = max(entailment_score[i // length], result[i]['label_probs'][0])
+
+    reward = entailment_score[:batch_size] - entailment_score[batch_size:]
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
