@@ -182,12 +182,20 @@ def train(opt):
                 loss_words = crit(words, caps, caps_mask)
                 loss_cate = classify_crit(categories, cap_classes, caps_mask, class_masks)
                 loss = loss_words + opt.weight_class * loss_cate
-            else:
+            elif not opt.train_with_textual_reward:
                 sample_dict = {}
                 sample_dict.update(vars(opt))
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
                 reward = get_self_critical_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
+                reward = torch.from_numpy(reward).float()
+                reward = reward.to(device)
+                loss = rl_crit(sample_logprobs, probability_sample, reward)
+            else:
+                sample_dict = vars(opt)
+                sample_dict.update({'sample_max':0})
+                probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
+                reward = get_self_critical_textual_entailment_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
@@ -207,9 +215,12 @@ def train(opt):
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
-                current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
-                current_score = current_language_state['CIDEr']
-                vis.log('current_cider is ' + str(current_score))
+                if not opt.eval_semantics:
+                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                else:
+                    current_loss, current_language_state, current_textual_score = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_textual_score
+                vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'textual_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score

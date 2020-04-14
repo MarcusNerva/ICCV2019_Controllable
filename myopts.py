@@ -73,6 +73,8 @@ def parse_opt():
     # parser.add_argument('--visualize_every', type=int, default=3, help='show us loss every x iteration')
     parser.add_argument('--visualize_every', type=int, default=10, help='show us loss every x iteration')
     parser.add_argument('--eval_semantics', type=int, default=0, help='whether eval semantics or not')
+    parser.add_argument('--train_with_textual_reward', type=int, default=0, help='whether train model with textual entailment or not')
+
 
 
 

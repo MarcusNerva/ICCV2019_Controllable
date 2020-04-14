@@ -64,6 +64,7 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
         result = predictor.predict_batch_json(store)
         for j in range(len(groundtruth_seqs[i])):
             textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
+        print('textual_score[%d] is %f' % (i, textual_score[i]))
 
     return textual_score.mean()
 
