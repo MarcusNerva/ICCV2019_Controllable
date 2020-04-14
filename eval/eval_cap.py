@@ -65,7 +65,7 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
         result = predictor.predict_batch_json(store)
         for j in range(len(groundtruth_seqs[i])):
             textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
-        print('textual_score[%d] is %f' % (i, textual_score[i]))
+        # print('textual_score[%d] is %f' % (i, textual_score[i]))
 
     return textual_score.mean()
 
@@ -126,10 +126,9 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
 
-    if not eval_semantics:
-        language_state = language_eval(total_prediction, total_groundtruth)
-    else:
+    if eval_semantics:
         textual_score = semantics_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, eval_kwargs=eval_kwargs)
+    language_state = language_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth)
     length = len(total_prediction)
     store = list(range(length))
     samples = random.sample(store, 20)
@@ -137,7 +136,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         print(total_prediction[idx])
 
     if eval_semantics:
-        return textual_score
+        return textual_score, language_state
     return loss_sum / loss_number, language_state
 
 

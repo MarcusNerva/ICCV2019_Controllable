@@ -24,5 +24,6 @@ if __name__ == '__main__':
         avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
         print(language_state)
     else:
-        textual_score = eval(model, crit, classify_crit, test_dataset, vars(opt))
+        textual_score, language_state = eval(model, crit, classify_crit, test_dataset, vars(opt))
         print('textual_score is ', textual_score)
+        print(language_state)
