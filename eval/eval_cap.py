@@ -65,7 +65,7 @@ def semantics_eval(sample_seqs, groundtruth_seqs, is_valid=False, eval_kwargs={}
                 temp = {'hypothesis': hypothesis, 'premise': premise}
                 store.append(temp)
         result = predictor.predict_batch_json(store)
-        length = 10
+        length = eval_kwargs['random_select']
         for i in range(len(result)):
             textual_score[i // length] = max(textual_score[i // length], result[i]['label_probs'][0])
     else:
@@ -98,6 +98,7 @@ def eval(model, crit, classify_crit, dataset, is_valid = True, eval_kwargs={}):
     data_path = eval_kwargs.get('data_path', None)
     batch_size = eval_kwargs.get('batch_size', 64)
     eval_semantics = eval_kwargs.get('eval_semantics', 0)
+    random_select = eval_kwargs['random_select']
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     assert data_path is not None, 'The data_path is not exist!'
 
@@ -138,7 +139,7 @@ def eval(model, crit, classify_crit, dataset, is_valid = True, eval_kwargs={}):
             number = len(caption_set[vid_t])
             number_store = list(range(number))
             if eval_semantics and is_valid:
-                number_store = random.sample(number_store, 10)
+                number_store = random.sample(number_store, random_select)
             for x in number_store:
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
