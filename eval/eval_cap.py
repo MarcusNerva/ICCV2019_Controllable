@@ -53,6 +53,7 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
     predictor = Predictor.from_path(archive_path=textual_entailment_path, predictor_name='textual-entailment')
     batch_size = len(sample_seqs)
     textual_score = np.zeros(batch_size)
+    print('batch_size == ', batch_size)
 
     for i in range(batch_size):
         hypothesis = sample_seqs[i]
@@ -125,8 +126,9 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
 
-    language_state = language_eval(total_prediction, total_groundtruth)
-    if eval_semantics:
+    if not eval_semantics:
+        language_state = language_eval(total_prediction, total_groundtruth)
+    else:
         textual_score = semantics_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, eval_kwargs=eval_kwargs)
     length = len(total_prediction)
     store = list(range(length))
@@ -135,7 +137,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         print(total_prediction[idx])
 
     if eval_semantics:
-        return loss_sum / loss_number, language_state, textual_score
+        return textual_score
     return loss_sum / loss_number, language_state
 
 
