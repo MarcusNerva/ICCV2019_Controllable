@@ -76,7 +76,7 @@ def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, 
 
     length = len(groudtruth[0])
     number_store = list(range(length))
-    number_store = random.sample(number_store, opt.random_select)
+    # number_store = random.sample(number_store, opt.random_select)
     for i in range(batch_size):
         gts[i] = [numbers_to_str(groudtruth[i][j]) for j in number_store]
     gts = {i: gts[i % batch_size] for i in range(double_batch_size)}
@@ -91,7 +91,7 @@ def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, 
             store.append(temp_dict)
     result = predictor.predict_batch_json(store)
     for i in range(len(result)):
-        entailment_score[i // opt.random_select] = max(entailment_score[i // opt.random_select], result[i]['label_probs'][0])
+        entailment_score[i // 20] = max(entailment_score[i // 20], result[i]['label_probs'][0])
 
     reward = entailment_score[:batch_size] - entailment_score[batch_size:]
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
@@ -218,11 +218,11 @@ def train(opt):
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
-                if not opt.eval_semantics:
-                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, True, vars(opt))
+                if not opt.eval_semantics or not sc_flag:
+                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 else:
-                    current_textual_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, True, vars(opt))
-                current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_textual_score
+                    current_textual_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                current_score = current_language_state['CIDEr'] if not opt.eval_semantics or not sc_flag else current_textual_score
                 vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'textual_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
