@@ -54,23 +54,23 @@ def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
     predictor = Predictor.from_path(archive_path=textual_entailment_path, predictor_name='textual-entailment')
     batch_size = len(sample_seqs)
     textual_score = np.zeros(batch_size)
+    number_store = list(range(batch_size))
+    number_store = random.sample(number_store, 128)
     print('batch_size == ', batch_size)
 
-    for i in range(0, batch_size, 64):
-        start = i
-        end = min(batch_size, start + 64)
+    for i in number_store:
         store = []
-        for j in range(start, end):
-            hypothesis = sample_seqs[j]
-            for k in range(len(groundtruth_seqs[j])):
-                premise = groundtruth_seqs[j][k]
-                temp = {'hypothesis': hypothesis, 'premise': premise}
-                store.append(temp)
+        hypothesis = sample_seqs[i]
+        for j in range(len(groundtruth_seqs[i])):
+            premise = groundtruth_seqs[i][j]
+            temp = {'hypothesis': hypothesis, 'premise': premise}
+            store.append(temp)
         result = predictor.predict_batch_json(store)
         for j in range(len(result)):
-            textual_score[start + j // 20] = max(textual_score[start + j // 20], result[j]['label_probs'][0])
+            textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
         # print('textual_score[%d] is %f' % (i, textual_score[i]))
-
+    textual_score = [textual_score[i] for i in range(batch_size) if textual_score[i] > 0]
+    textual_score = np.array(textual_score)
     return textual_score.mean()
 
 
