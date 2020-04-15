@@ -205,7 +205,7 @@ def train(opt):
                 sample_dict = vars(opt)
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
-                reward = get_self_critical_textual_entailment_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample)
+                reward = get_self_critical_textual_entailment_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample, opt)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
