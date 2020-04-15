@@ -145,6 +145,7 @@ def train(opt):
     train_patience = 0
     epoch = infos.get('epoch', 0)
     loss_meter = meter.AverageValueMeter()
+    eval_semantics_store = opt.eval_semantics
 
     while True:
         if train_patience > opt.patience: break
@@ -164,8 +165,10 @@ def train(opt):
 
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
             sc_flag = True
+            opt.eval_semantics = eval_semantics_store
         else:
             sc_flag = False
+            opt.eval_semantics = 0
         # sc_flag = True
 
         for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(train_loader):
@@ -185,7 +188,7 @@ def train(opt):
                 loss_words = crit(words, caps, caps_mask)
                 loss_cate = classify_crit(categories, cap_classes, caps_mask, class_masks)
                 loss = loss_words + opt.weight_class * loss_cate
-            elif not opt.train_with_textual_reward:
+            elif not opt.eval_semantics:
                 sample_dict = {}
                 sample_dict.update(vars(opt))
                 sample_dict.update({'sample_max':0})
