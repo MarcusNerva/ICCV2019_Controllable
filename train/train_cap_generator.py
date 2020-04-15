@@ -146,6 +146,7 @@ def train(opt):
     epoch = infos.get('epoch', 0)
     loss_meter = meter.AverageValueMeter()
     eval_semantics_store = opt.eval_semantics
+    is_first = True
 
     while True:
         if train_patience > opt.patience: break
@@ -166,6 +167,9 @@ def train(opt):
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
             sc_flag = True
             opt.eval_semantics = eval_semantics_store
+            if is_first:
+                best_score = None
+                is_first = False
         else:
             sc_flag = False
             opt.eval_semantics = 0
@@ -226,7 +230,7 @@ def train(opt):
                 else:
                     current_textual_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 current_score = current_language_state['CIDEr'] if not opt.eval_semantics or not sc_flag else current_textual_score
-                vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'textual_score is') + str(current_score))
+                vis.log('{}'.format('cider score is ' if not opt.eval_semantics or not sc_flag else 'textual_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score
