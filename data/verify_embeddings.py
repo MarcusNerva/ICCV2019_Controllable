@@ -9,7 +9,7 @@ from eval.eval_cap import cosine
 import myopts
 import math
 
-EPS = 1e-8
+EPS = 1e-4
 
 if __name__ == '__main__':
     opt = myopts.parse_opt()
@@ -57,8 +57,8 @@ if __name__ == '__main__':
 
                 for j in range(number):
                     cosine_value = cosine(temp_embeddings[j], keeped_embeddings[j])
-                    print(cosine_value)
-                    if math.fabs(1 - cosine_value) < EPS: continue
+                    # print(cosine_value)
+                    if math.fabs(1.0 - cosine_value) < EPS: continue
                     cnt += 1
             print('now cnt == ', cnt)
 
