@@ -240,7 +240,7 @@ def train(opt):
                 else:
                     current_semantics_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_semantics_score
-                vis.log('{}'.format('cider score is ' if not opt.eval_semantics or not sc_flag else 'semantics_score is') + str(current_score))
+                vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'semantics_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score
