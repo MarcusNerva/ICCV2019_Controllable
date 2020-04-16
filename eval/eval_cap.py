@@ -2,19 +2,22 @@ import torch
 import torch.nn
 import numpy as np
 import sys
+import os
 from collections import OrderedDict
 sys.path.append('../')
 sys.path.append('../coco-caption/')
-from data.dataset import load_dataset_cap, collate_fn_cap, get_itow, get_caps, get_nwords
+from data.dataset import load_dataset_cap, collate_fn_cap, get_itow, get_caps, get_nwords, load_pkl
 from models.loss import ClassifierCriterion, LanguageModelCriterion, RewardCriterion
 from pycocoevalcap.bleu.bleu import Bleu
 from pycocoevalcap.cider.cider import Cider
 from pycocoevalcap.meteor.meteor import Meteor
 from pycocoevalcap.rouge.rouge import Rouge
 from torch.utils.data import DataLoader
-from allennlp.predictors.predictor import Predictor
+from infersent_model import InferSent
 import random
-import time
+
+def cosine(u, v):
+    return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
 
 def language_eval(sample_seqs, groundtruth_seqs):
     assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs!'
@@ -47,32 +50,37 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_cider_score))
     return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score,  'METEOR': avg_meteor_score,   'ROUGE': avg_rouge_score}
 
-def semantics_eval(sample_seqs, groundtruth_seqs, eval_kwargs={}):
-    assert len(sample_seqs) == len(groundtruth_seqs), 'length of sampled seqs is different from that of groundtruth seqs'
+def semantics_eval(sample_seqs, groundtruth_embeddings, eval_kwargs = {}):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_version = 1
+    MODEL_PATH = eval_kwargs.get('infersent_model_path', None)
+    assert MODEL_PATH is not None, '--infersent_model_path is None!'
+    params_model = {
+        'bsize': 64,
+        'word_emb_dim': 300,
+        'enc_lstm_dim': 2048,
+        'pool_type': 'max',
+        'dpout_model': 0.0,
+        'version': model_version
+    }
+    model = InferSent(params_model)
+    model.load_state_dict(torch.load(MODEL_PATH))
+    model = model.to(device)
+    W2V_PATH = eval_kwargs.get('w2v_path', None)
+    assert W2V_PATH is not None, '--w2v_path is None!'
+    model.set_w2v_path(W2V_PATH)
+    model.build_vocab_k_words(K=100000)
 
-    textual_entailment_path = eval_kwargs['textual_entailment_path']
-    predictor = Predictor.from_path(archive_path=textual_entailment_path, predictor_name='textual-entailment')
     batch_size = len(sample_seqs)
-    textual_score = np.zeros(batch_size)
-    number_store = list(range(batch_size))
-    number_store = random.sample(number_store, 128)
-    print('batch_size == ', batch_size)
+    sample_embeddings = model.encode(sample_seqs, bsize=128, tokenize=False, verbose=True)
+    semantics_score = np.zeros(batch_size)
+    for i in range(batch_size):
+        hypothesis_embedding = sample_embeddings[i]
+        for j in range(len(groundtruth_embeddings[i])):
+            premise_embedding = groundtruth_embeddings[i][j]
+            semantics_score[i] = max(semantics_score[i], cosine(hypothesis_embedding, premise_embedding))
 
-    for i in number_store:
-        store = []
-        hypothesis = sample_seqs[i]
-        for j in range(len(groundtruth_seqs[i])):
-            premise = groundtruth_seqs[i][j]
-            temp = {'hypothesis': hypothesis, 'premise': premise}
-            store.append(temp)
-        result = predictor.predict_batch_json(store)
-        for j in range(len(result)):
-            textual_score[i] = max(textual_score[i], result[j]['label_probs'][0])
-        # print('textual_score[%d] is %f' % (i, textual_score[i]))
-    textual_score = [textual_score[i] for i in range(batch_size) if textual_score[i] > 0]
-    textual_score = np.array(textual_score)
-    return textual_score.mean()
-
+    return semantics_score.mean()
 
 def decode_idx(seq, itow):
     ret = ''
@@ -88,7 +96,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
     data_path = eval_kwargs.get('data_path', None)
     batch_size = eval_kwargs.get('batch_size', 64)
     eval_semantics = eval_kwargs.get('eval_semantics', 0)
-    random_select = eval_kwargs['random_select']
+    sentence_embeddings_path = os.path.join(data_path, 'sentence_embeddings.pkl')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     assert data_path is not None, 'The data_path is not exist!'
 
@@ -97,9 +105,11 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
     loss_number = 1e-8
     total_prediction = []
     total_groundtruth = []
+    total_sentence_embeddings = []
     id_word = get_itow(data_path)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn_cap)
     caption_set = get_caps(data_path)
+    sentence_embeddings = load_pkl(pkl_file=sentence_embeddings_path)
     for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(data_loader):
         feats0 = feats0.to(device)
         feats1 = feats1.to(device)
@@ -127,16 +137,13 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
 
             temp = []
             number = len(caption_set[vid_t])
-            number_store = list(range(number))
-            for x in number_store:
+            for x in range(number):
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
+            total_sentence_embeddings.append(sentence_embeddings[vid_t])
 
-    # start = time.time()
     if eval_semantics:
-        textual_score = semantics_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, eval_kwargs=eval_kwargs)
-    # end = time.time()
-    # print('semantic eval takes: ', (end - start))
+        semantics_score = semantics_eval(sample_seqs=total_prediction, groundtruth_embeddings=total_sentence_embeddings, eval_kwargs=eval_kwargs)
     language_state = language_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth)
     length = len(total_prediction)
     store = list(range(length))
@@ -145,7 +152,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
         print(total_prediction[idx])
 
     if eval_semantics:
-        return textual_score, language_state
+        return semantics_score, language_state
     return loss_sum / loss_number, language_state
 
 

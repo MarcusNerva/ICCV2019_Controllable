@@ -25,5 +25,5 @@ if __name__ == '__main__':
         print(language_state)
     else:
         textual_score, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
-        print('textual_score is ', textual_score)
+        print('semantics_score is ', textual_score)
         print(language_state)

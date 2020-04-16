@@ -10,15 +10,15 @@ import random
 sys.path.append('../')
 sys.path.append('../coco-caption/')
 from pycocoevalcap.cider.cider import Cider
-from data.dataset import load_dataset_cap, collate_fn_cap, get_nwords, get_nclasses
-from eval.eval_cap import eval
+from data.dataset import load_dataset_cap, collate_fn_cap, get_nwords, get_nclasses, load_pkl
+from eval.eval_cap import eval, cosine
 import myopts
 from models.describer_generator import Caption_generator
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
 from visualize import Visualizer
 from torchnet import meter
 from collections import OrderedDict
-from allennlp.predictors.predictor import Predictor
+from infersent_model import InferSent
 
 def numbers_to_str(numbers):
     ret = ''
@@ -56,45 +56,57 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
-def get_self_critical_textual_entailment_reward(model, feat0, feat1, feat_mask, pos_feat, groudtruth, probability_sample, opt):
-    predictor = Predictor.from_path(archive_path=opt.textual_entailment_path, predictor_name='textual-entailment')
+def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, kwargs = {}):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    model_version = 1
+    MODEL_PATH = kwargs.get('infersent_model_path', None)
+    assert MODEL_PATH is not None, '--infersent_model_path is None!'
+    params_model = {
+        'bsize': 64,
+        'word_emb_dim': 300,
+        'enc_lstm_dim': 2048,
+        'pool_type': 'max',
+        'dpout_model': 0.0,
+        'version': model_version
+    }
+    model = InferSent(params_model)
+    model.load_state_dict(torch.load(MODEL_PATH))
+    model = model.to(device)
+    W2V_PATH = kwargs.get('w2v_path', None)
+    assert W2V_PATH is not None, '--w2v_path is None!'
+    model.set_w2v_path(W2V_PATH)
+    model.build_vocab_k_words(K=100000)
 
     batch_size = feat0.size(0)
     double_batch_size = batch_size * 2
     seq_length = probability_sample.size(1)
+    semantics_score = np.zeros(double_batch_size)
 
     greedy_sample, _ = model.sample(feat0, feat1, feat_mask, pos_feat)
+    res = []
+    res_embeddings = []
+    gts_embeddings = []
     greedy_sample = greedy_sample.cpu().numpy()
     probability_sample = probability_sample.cpu().numpy()
-    res = OrderedDict()
-    gts = OrderedDict()
 
     for i in range(batch_size):
-        res[i] = numbers_to_str(probability_sample[i])
+        res.append(numbers_to_str(probability_sample[i]))
     for i in range(batch_size, double_batch_size):
-        res[i] = numbers_to_str(greedy_sample[i - batch_size])
+        res.append(numbers_to_str(greedy_sample[i - batch_size]))
+    res_embeddings = model.encode(res, bsize=128, tokenize=False, verbose=True)
 
-    length = len(groudtruth[0])
-    number_store = list(range(length))
-    # number_store = random.sample(number_store, opt.random_select)
-    for i in range(batch_size):
-        gts[i] = [numbers_to_str(groudtruth[i][j]) for j in number_store]
-    gts = {i: gts[i % batch_size] for i in range(double_batch_size)}
-    entailment_score = np.zeros(double_batch_size)
-    store = []
+    for key in video_id:
+        gts_embeddings.append(total_embeddings[key])
+    for key in video_id:
+        gts_embeddings.append(total_embeddings[key])
 
     for i in range(double_batch_size):
-        hypothesis = res[i]
-        for j in range(len(gts[i])):
-            premise = gts[i][j]
-            temp_dict = {'hypothesis': hypothesis, 'premise': premise}
-            store.append(temp_dict)
-    result = predictor.predict_batch_json(store)
-    for j in range(len(result)):
-        entailment_score[j // 20] = max(entailment_score[j // 20], result[j]['label_probs'][0])
-    # print('entailment_score[%d] = %f' % (i, entailment_score[i]))
+        hypothesis_embedding = res_embeddings[i]
+        for j in range(len(gts_embeddings[i])):
+            premise_embedding = gts_embeddings[i][j]
+            semantics_score[i] = max(semantics_score[i], cosine(hypothesis_embedding, premise_embedding))
 
-    reward = entailment_score[:batch_size] - entailment_score[batch_size:]
+    reward = semantics_score[:batch_size] - semantics_score[batch_size:]
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
@@ -116,6 +128,8 @@ def train(opt):
     train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt=opt)
     train_loader = DataLoader(dataset=train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
     model = Caption_generator(opt=opt)
+    embeddings_path = os.path.join(opt.data_path, 'sentence_embeddings.pkl')
+    total_embeddings = load_pkl(embeddings_path)
     infos = {}
     best_score = None
     crit = LanguageModelCriterion()
@@ -206,7 +220,7 @@ def train(opt):
                 sample_dict = vars(opt)
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
-                reward = get_self_critical_textual_entailment_reward(model, feats0, feats1, feat_mask, pos_feat, gts, probability_sample, opt)
+                reward = get_self_critical_semantics_reward(model, feats0, feats1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, sample_dict)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
@@ -229,9 +243,9 @@ def train(opt):
                 if not opt.eval_semantics or not sc_flag:
                     current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 else:
-                    current_textual_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
-                current_score = current_language_state['CIDEr'] if not opt.eval_semantics or not sc_flag else current_textual_score
-                vis.log('{}'.format('cider score is ' if not opt.eval_semantics or not sc_flag else 'textual_score is') + str(current_score))
+                    current_semantics_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                current_score = current_language_state['CIDEr'] if not opt.eval_semantics or not sc_flag else current_semantics_score
+                vis.log('{}'.format('cider score is ' if not opt.eval_semantics or not sc_flag else 'semantics_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
                     best_score = current_score
