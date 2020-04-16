@@ -82,6 +82,7 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
 
     for i in range(double_batch_size):
         hypothesis_embedding = res_embeddings[i]
+        print('######', len(gts_embeddings[i]))
         for j in range(len(gts_embeddings[i])):
             premise_embedding = gts_embeddings[i][j]
             semantics_score[i] = max(semantics_score[i], cosine(hypothesis_embedding, premise_embedding))
@@ -213,6 +214,7 @@ def train(opt):
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
             else:
                 sample_dict = vars(opt)
+                sample_dict.update(vars(opt))
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
                 reward = get_self_critical_semantics_reward(id_word, infersent_model, model, feats0, feats1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, sample_dict)
