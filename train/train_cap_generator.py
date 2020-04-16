@@ -161,7 +161,6 @@ def train(opt):
     train_patience = 0
     epoch = infos.get('epoch', 0)
     loss_meter = meter.AverageValueMeter()
-    eval_semantics_store = opt.eval_semantics
     is_first = True
 
     while True:
@@ -182,13 +181,8 @@ def train(opt):
 
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
             sc_flag = True
-            opt.eval_semantics = eval_semantics_store
-            if is_first:
-                best_score = None
-                is_first = False
         else:
             sc_flag = False
-            opt.eval_semantics = 0
         # sc_flag = True
 
         for i, (data, caps, caps_mask, cap_classes, class_masks, feats0, feats1, feat_mask, pos_feat, lens, gts, video_id) in enumerate(train_loader):
@@ -241,11 +235,11 @@ def train(opt):
 
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
-                if not opt.eval_semantics or not sc_flag:
+                if not opt.eval_semantics:
                     current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
                 else:
                     current_semantics_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
-                current_score = current_language_state['CIDEr'] if not opt.eval_semantics or not sc_flag else current_semantics_score
+                current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_semantics_score
                 vis.log('{}'.format('cider score is ' if not opt.eval_semantics or not sc_flag else 'semantics_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
                     is_best = True
