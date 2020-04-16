@@ -10,8 +10,8 @@ import random
 sys.path.append('../')
 sys.path.append('../coco-caption/')
 from pycocoevalcap.cider.cider import Cider
-from data.dataset import load_dataset_cap, collate_fn_cap, get_nwords, get_nclasses, load_pkl
-from eval.eval_cap import eval, cosine
+from data.dataset import load_dataset_cap, collate_fn_cap, get_nwords, get_nclasses, load_pkl, get_itow
+from eval.eval_cap import eval, cosine, decode_idx
 import myopts
 from models.describer_generator import Caption_generator
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
@@ -29,7 +29,7 @@ def numbers_to_str(numbers):
         ret += str(numbers[i] if not is_tensor else numbers[i].item()) + ' '
     return ret.strip()
 
-def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtruth, probability_sample):
+def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtruth, probability_sample, id_word):
     batch_size = feat0.size(0)
     double_batch_size = batch_size * 2
     seq_length = probability_sample.size(1)
@@ -56,28 +56,7 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
-def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, kwargs = {}):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model_version = 1
-    MODEL_PATH = kwargs.get('infersent_model_path', None)
-    assert MODEL_PATH is not None, '--infersent_model_path is None!'
-    MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
-    params_model = {
-        'bsize': 64,
-        'word_emb_dim': 300,
-        'enc_lstm_dim': 2048,
-        'pool_type': 'max',
-        'dpout_model': 0.0,
-        'version': model_version
-    }
-    infersent_model = InferSent(params_model)
-    infersent_model.load_state_dict(torch.load(MODEL_PATH))
-    infersent_model = infersent_model.to(device)
-    W2V_PATH = kwargs.get('w2v_path', None)
-    assert W2V_PATH is not None, '--w2v_path is None!'
-    infersent_model.set_w2v_path(W2V_PATH)
-    infersent_model.build_vocab_k_words(K=100000)
-
+def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, feat1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, kwargs = {}):
     batch_size = feat0.size(0)
     double_batch_size = batch_size * 2
     seq_length = probability_sample.size(1)
@@ -91,9 +70,9 @@ def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat,
     probability_sample = probability_sample.cpu().numpy()
 
     for i in range(batch_size):
-        res.append(numbers_to_str(probability_sample[i]))
+        res.append(decode_idx(probability_sample[i], id_word))
     for i in range(batch_size, double_batch_size):
-        res.append(numbers_to_str(greedy_sample[i - batch_size]))
+        res.append(decode_idx(greedy_sample[i - batch_size], id_word))
     res_embeddings = infersent_model.encode(res, bsize=128, tokenize=False, verbose=True)
 
     for key in video_id:
@@ -136,6 +115,27 @@ def train(opt):
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
     rl_crit = RewardCriterion()
+
+    model_version = 1
+    MODEL_PATH = opt.infersent_model_path
+    assert MODEL_PATH is not None, '--infersent_model_path is None!'
+    MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
+    params_model = {
+        'bsize': 64,
+        'word_emb_dim': 300,
+        'enc_lstm_dim': 2048,
+        'pool_type': 'max',
+        'dpout_model': 0.0,
+        'version': model_version
+    }
+    infersent_model = InferSent(params_model)
+    infersent_model.load_state_dict(torch.load(MODEL_PATH))
+    infersent_model = infersent_model.to(device)
+    W2V_PATH = opt.w2v_path
+    assert W2V_PATH is not None, '--w2v_path is None!'
+    infersent_model.set_w2v_path(W2V_PATH)
+    infersent_model.build_vocab_k_words(K=100000)
+    id_word = get_itow(opt.data_path)
 
     if opt.start_from is not None:
         assert os.path.isdir(opt.start_from), 'opt.start_from must be a dir!'
@@ -221,7 +221,7 @@ def train(opt):
                 sample_dict = vars(opt)
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
-                reward = get_self_critical_semantics_reward(model, feats0, feats1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, sample_dict)
+                reward = get_self_critical_semantics_reward(id_word, infersent_model, model, feats0, feats1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, sample_dict)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
