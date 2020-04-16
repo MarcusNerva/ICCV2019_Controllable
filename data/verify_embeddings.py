@@ -3,7 +3,7 @@ sys.path.append('../')
 import os
 import torch
 from torch.utils.data import DataLoader
-from .dataset import load_dataset_cap, collate_fn_cap, load_pkl, get_caps
+from data.dataset import load_dataset_cap, collate_fn_cap, load_pkl, get_caps
 from infersent_model import InferSent
 from eval.eval_cap import cosine
 import myopts
