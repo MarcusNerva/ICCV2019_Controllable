@@ -73,7 +73,6 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
         res.append(decode_idx(probability_sample[i], id_word))
     for i in range(batch_size, double_batch_size):
         res.append(decode_idx(greedy_sample[i - batch_size], id_word))
-    print(res)
     res_embeddings = infersent_model.encode(res, bsize=128, tokenize=False, verbose=True)
 
     for key in video_id:
