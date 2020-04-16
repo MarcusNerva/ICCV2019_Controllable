@@ -61,6 +61,7 @@ def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat,
     model_version = 1
     MODEL_PATH = kwargs.get('infersent_model_path', None)
     assert MODEL_PATH is not None, '--infersent_model_path is None!'
+    MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
     params_model = {
         'bsize': 64,
         'word_emb_dim': 300,

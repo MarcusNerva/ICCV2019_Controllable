@@ -24,6 +24,6 @@ if __name__ == '__main__':
         avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
         print(language_state)
     else:
-        textual_score, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
-        print('semantics_score is ', textual_score)
+        semantics_score, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
+        print('semantics_score is ', semantics_score)
         print(language_state)
