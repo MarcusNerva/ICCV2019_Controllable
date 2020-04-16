@@ -70,13 +70,13 @@ def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat,
         'dpout_model': 0.0,
         'version': model_version
     }
-    model = InferSent(params_model)
-    model.load_state_dict(torch.load(MODEL_PATH))
-    model = model.to(device)
+    infersent_model = InferSent(params_model)
+    infersent_model.load_state_dict(torch.load(MODEL_PATH))
+    infersent_model = infersent_model.to(device)
     W2V_PATH = kwargs.get('w2v_path', None)
     assert W2V_PATH is not None, '--w2v_path is None!'
-    model.set_w2v_path(W2V_PATH)
-    model.build_vocab_k_words(K=100000)
+    infersent_model.set_w2v_path(W2V_PATH)
+    infersent_model.build_vocab_k_words(K=100000)
 
     batch_size = feat0.size(0)
     double_batch_size = batch_size * 2
@@ -94,7 +94,7 @@ def get_self_critical_semantics_reward(model, feat0, feat1, feat_mask, pos_feat,
         res.append(numbers_to_str(probability_sample[i]))
     for i in range(batch_size, double_batch_size):
         res.append(numbers_to_str(greedy_sample[i - batch_size]))
-    res_embeddings = model.encode(res, bsize=128, tokenize=False, verbose=True)
+    res_embeddings = infersent_model.encode(res, bsize=128, tokenize=False, verbose=True)
 
     for key in video_id:
         gts_embeddings.append(total_embeddings[key])
