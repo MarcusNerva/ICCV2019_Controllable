@@ -52,7 +52,7 @@ if __name__ == '__main__':
                 temp = []
                 for j in range(number):
                     temp.append(caption_set[vid_t][j][b'tokenized'].decode())
-                temp_embeddings = model.encode(temp, bsize=128, tokenize=False)
+                temp_embeddings = model.encode(temp, bsize=128, tokenize=True)
                 keeped_embeddings = sentence_embeddings[vid_t]
 
                 for j in range(number):
