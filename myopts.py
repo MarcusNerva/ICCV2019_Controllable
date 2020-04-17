@@ -57,7 +57,7 @@ def parse_opt():
     parser.add_argument('--grad_clip', type=float, default=0.1, help='clip gradients at this value')
     parser.add_argument('--drop_probability', type=float, default=0.5, help='strength of dropout')
     parser.add_argument('--beam_size', type=int, default=1, help='beam size')
-    parser.add_argument('--save_checkpoint_every', type=int, default=500, help='save a model every x iteration')
+    parser.add_argument('--save_checkpoint_every', type=int, default=750, help='save a model every x iteration')
     parser.add_argument('--reward_type', type=str, default='CIDEr', help='use BLEU/METEOR/ROUGE/CIDEr as reward')
     parser.add_argument('--patience', type=int, default=30, help='the early stop threshold which designed for solving the score stopped raising')
     parser.add_argument('--model_name', type=str, default='pos', help='name of the model under using')

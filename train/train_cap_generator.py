@@ -140,9 +140,10 @@ def train(opt):
     W2V_PATH = opt.w2v_path
     assert W2V_PATH is not None, '--w2v_path is None!'
     infersent_model.set_w2v_path(W2V_PATH)
-    sentences_path = os.path.join(opt.data_path, 'sentences.pkl')
-    sentences = load_pkl(sentences_path)
-    infersent_model.build_vocab(sentences, tokenize=True)
+    # sentences_path = os.path.join(opt.data_path, 'sentences.pkl')
+    # sentences = load_pkl(sentences_path)
+    # infersent_model.build_vocab(sentences, tokenize=True)
+    infersent_model.build_vocab_k_words(K=100000)
     id_word = get_itow(opt.data_path)
 
     if opt.start_from is not None:
