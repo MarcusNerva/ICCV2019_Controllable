@@ -69,7 +69,6 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
     gts_embeddings = []
     greedy_sample = greedy_sample.cpu().numpy()
     probability_sample = probability_sample.cpu().numpy()
-    groundtruth = groundtruth.numpy()
 
     for i in range(batch_size):
         res.append(decode_idx(probability_sample[i], id_word))
@@ -83,7 +82,7 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
     #     gts_embeddings.append(total_embeddings[key])
 
     for i in range(batch_size):
-        gts_dict[i] = [decode_idx(groundtruth[i][j], id_word) for j in range(len(groundtruth[i]))]
+        gts_dict[i] = [decode_idx(groundtruth[i][j].cpu().numpy(), id_word) for j in range(len(groundtruth[i]))]
     for i in range(double_batch_size):
         gts_embeddings.append(infersent_model.encode(gts_dict[i % batch_size], bsize=128, tokenize=True))
 
