@@ -69,7 +69,7 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
     gts_embeddings = []
     greedy_sample = greedy_sample.cpu().numpy()
     probability_sample = probability_sample.cpu().numpy()
-    groundtruth = groundtruth.cpu().numpy()
+    groundtruth = groundtruth.numpy()
 
     for i in range(batch_size):
         res.append(decode_idx(probability_sample[i], id_word))
