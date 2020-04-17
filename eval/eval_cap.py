@@ -55,12 +55,12 @@ def semantics_eval(model, sample_seqs, groundtruth_seqs, groundtruth_embeddings,
     sample_embeddings = model.encode(sample_seqs, bsize=128, tokenize=True, verbose=True)
     semantics_score = np.zeros(batch_size)
 
-    references = OrderedDict()
-    for i in range(len(groundtruth_seqs)):
-        references[i] = [groundtruth_seqs[i][j] for j in range(len(groundtruth_seqs[i]))]
-    groundtruth_embeddings = []
-    for i in range(batch_size):
-        groundtruth_embeddings.append(model.encode(references[i]))
+    # references = OrderedDict()
+    # for i in range(len(groundtruth_seqs)):
+    #     references[i] = [groundtruth_seqs[i][j] for j in range(len(groundtruth_seqs[i]))]
+    # groundtruth_embeddings = []
+    # for i in range(batch_size):
+    #     groundtruth_embeddings.append(model.encode(references[i]))
 
     for i in range(batch_size):
         hypothesis_embedding = sample_embeddings[i]

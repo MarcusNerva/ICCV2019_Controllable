@@ -76,15 +76,15 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
         res.append(decode_idx(greedy_sample[i - batch_size], id_word))
     res_embeddings = infersent_model.encode(res, bsize=128, tokenize=True, verbose=True)
 
-    # for key in video_id:
-    #     gts_embeddings.append(total_embeddings[key])
-    # for key in video_id:
-    #     gts_embeddings.append(total_embeddings[key])
+    for key in video_id:
+        gts_embeddings.append(total_embeddings[key])
+    for key in video_id:
+        gts_embeddings.append(total_embeddings[key])
 
-    for i in range(batch_size):
-        gts_dict[i] = [decode_idx(groundtruth[i][j].cpu().numpy(), id_word) for j in range(len(groundtruth[i]))]
-    for i in range(double_batch_size):
-        gts_embeddings.append(infersent_model.encode(gts_dict[i % batch_size], bsize=128, tokenize=True))
+    # for i in range(batch_size):
+    #     gts_dict[i] = [decode_idx(groundtruth[i][j].cpu().numpy(), id_word) for j in range(len(groundtruth[i]))]
+    # for i in range(double_batch_size):
+    #     gts_embeddings.append(infersent_model.encode(gts_dict[i % batch_size], bsize=128, tokenize=True))
 
     for i in range(double_batch_size):
         hypothesis_embedding = res_embeddings[i]
