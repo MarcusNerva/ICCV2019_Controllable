@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
                 for j in range(number):
                     cosine_value = cosine(temp_embeddings[j], keeped_embeddings[j])
-                    # print(cosine_value)
+                    print(cosine_value)
                     if math.fabs(1.0 - cosine_value) < EPS: continue
                     cnt += 1
             print('now cnt == ', cnt)
