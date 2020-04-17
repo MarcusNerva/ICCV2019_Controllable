@@ -50,31 +50,18 @@ def language_eval(sample_seqs, groundtruth_seqs):
     #                                                                                      avg_cider_score))
     return {'BLEU': avg_bleu_score, 'CIDEr': avg_cider_score,  'METEOR': avg_meteor_score,   'ROUGE': avg_rouge_score}
 
-def semantics_eval(sample_seqs, groundtruth_embeddings, eval_kwargs = {}):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model_version = 1
-    MODEL_PATH = eval_kwargs.get('infersent_model_path', None)
-    assert MODEL_PATH is not None, '--infersent_model_path is None!'
-    MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
-    params_model = {
-        'bsize': 64,
-        'word_emb_dim': 300,
-        'enc_lstm_dim': 2048,
-        'pool_type': 'max',
-        'dpout_model': 0.0,
-        'version': model_version
-    }
-    model = InferSent(params_model)
-    model.load_state_dict(torch.load(MODEL_PATH))
-    model = model.to(device)
-    W2V_PATH = eval_kwargs.get('w2v_path', None)
-    assert W2V_PATH is not None, '--w2v_path is None!'
-    model.set_w2v_path(W2V_PATH)
-    model.build_vocab_k_words(K=100000)
-
+def semantics_eval(model, sample_seqs, groundtruth_seqs, groundtruth_embeddings, eval_kwargs = {}):
     batch_size = len(sample_seqs)
-    sample_embeddings = model.encode(sample_seqs, bsize=128, tokenize=False, verbose=True)
+    sample_embeddings = model.encode(sample_seqs, bsize=128, tokenize=True, verbose=True)
     semantics_score = np.zeros(batch_size)
+
+    references = OrderedDict()
+    for i in range(len(groundtruth_seqs)):
+        references[i] = [groundtruth_seqs[i][j] for j in range(len(groundtruth_seqs[i]))]
+    groundtruth_embeddings = []
+    for i in range(batch_size):
+        groundtruth_embeddings.append(model.encode(references[i]))
+
     for i in range(batch_size):
         hypothesis_embedding = sample_embeddings[i]
         for j in range(len(groundtruth_embeddings[i])):
@@ -92,7 +79,7 @@ def decode_idx(seq, itow):
         ret += itow[seq[i]]
     return ret
 
-def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
+def eval(infersent, model, crit, classify_crit, dataset, eval_kwargs={}):
     # lang_eval = eval_kwargs.get('lang_eval', 1)
     data_path = eval_kwargs.get('data_path', None)
     batch_size = eval_kwargs.get('batch_size', 64)
@@ -144,7 +131,7 @@ def eval(model, crit, classify_crit, dataset, eval_kwargs={}):
             total_sentence_embeddings.append(sentence_embeddings[vid_t])
 
     if eval_semantics:
-        semantics_score = semantics_eval(sample_seqs=total_prediction, groundtruth_embeddings=total_sentence_embeddings, eval_kwargs=eval_kwargs)
+        semantics_score = semantics_eval(model=infersent, sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, groundtruth_embeddings=total_sentence_embeddings, eval_kwargs=eval_kwargs)
     language_state = language_eval(sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth)
     length = len(total_prediction)
     store = list(range(length))

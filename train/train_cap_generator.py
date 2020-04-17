@@ -56,7 +56,7 @@ def get_self_critical_reward(model, feat0, feat1, feat_mask, pos_feat, groundtru
     reward = np.repeat(reward[:, np.newaxis], seq_length, axis=1)
     return reward
 
-def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, feat1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, kwargs = {}):
+def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, feat1, feat_mask, pos_feat, groundtruth, video_id, total_embeddings, probability_sample, kwargs = {}):
     batch_size = feat0.size(0)
     double_batch_size = batch_size * 2
     seq_length = probability_sample.size(1)
@@ -65,6 +65,7 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
     greedy_sample, _ = model.sample(feat0, feat1, feat_mask, pos_feat)
     res = []
     res_embeddings = []
+    gts_dict = OrderedDict()
     gts_embeddings = []
     greedy_sample = greedy_sample.cpu().numpy()
     probability_sample = probability_sample.cpu().numpy()
@@ -73,16 +74,20 @@ def get_self_critical_semantics_reward(id_word, infersent_model, model, feat0, f
         res.append(decode_idx(probability_sample[i], id_word))
     for i in range(batch_size, double_batch_size):
         res.append(decode_idx(greedy_sample[i - batch_size], id_word))
-    res_embeddings = infersent_model.encode(res, bsize=128, tokenize=False, verbose=True)
+    res_embeddings = infersent_model.encode(res, bsize=128, tokenize=True, verbose=True)
 
-    for key in video_id:
-        gts_embeddings.append(total_embeddings[key])
-    for key in video_id:
-        gts_embeddings.append(total_embeddings[key])
+    # for key in video_id:
+    #     gts_embeddings.append(total_embeddings[key])
+    # for key in video_id:
+    #     gts_embeddings.append(total_embeddings[key])
+
+    for i in range(batch_size):
+        gts_dict[i] = [groundtruth[i][j] for j in range(len(groundtruth[i]))]
+    for i in range(double_batch_size):
+        gts_embeddings.append(infersent_model.encode(gts_dict[i % batch_size], bsize=128, tokenize=True))
 
     for i in range(double_batch_size):
         hypothesis_embedding = res_embeddings[i]
-        print('######', len(gts_embeddings[i]))
         for j in range(len(gts_embeddings[i])):
             premise_embedding = gts_embeddings[i][j]
             semantics_score[i] = max(semantics_score[i], cosine(hypothesis_embedding, premise_embedding))
@@ -135,7 +140,9 @@ def train(opt):
     W2V_PATH = opt.w2v_path
     assert W2V_PATH is not None, '--w2v_path is None!'
     infersent_model.set_w2v_path(W2V_PATH)
-    infersent_model.build_vocab_k_words(K=100000)
+    sentences_path = os.path.join(opt.data_path, 'sentences.pkl')
+    sentences = load_pkl(sentences_path)
+    infersent_model.build_vocab(sentences, tokenize=True)
     id_word = get_itow(opt.data_path)
 
     if opt.start_from is not None:
@@ -162,7 +169,6 @@ def train(opt):
     train_patience = 0
     epoch = infos.get('epoch', 0)
     loss_meter = meter.AverageValueMeter()
-    is_first = True
 
     while True:
         if train_patience > opt.patience: break
@@ -217,7 +223,7 @@ def train(opt):
                 sample_dict.update(vars(opt))
                 sample_dict.update({'sample_max':0})
                 probability_sample, sample_logprobs = model.sample(feats0, feats1, feat_mask, pos_feat, sample_dict)
-                reward = get_self_critical_semantics_reward(id_word, infersent_model, model, feats0, feats1, feat_mask, pos_feat, video_id, total_embeddings, probability_sample, sample_dict)
+                reward = get_self_critical_semantics_reward(id_word, infersent_model, model, feats0, feats1, feat_mask, pos_feat, gts, video_id, total_embeddings, probability_sample, sample_dict)
                 reward = torch.from_numpy(reward).float()
                 reward = reward.to(device)
                 loss = rl_crit(sample_logprobs, probability_sample, reward)
@@ -238,9 +244,9 @@ def train(opt):
             is_best = False
             if (i + 1) % opt.save_checkpoint_every == 0:
                 if not opt.eval_semantics:
-                    current_loss, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                    current_loss, current_language_state = eval(infersent_model, model, crit, classify_crit, valid_dataset, vars(opt))
                 else:
-                    current_semantics_score, current_language_state = eval(model, crit, classify_crit, valid_dataset, vars(opt))
+                    current_semantics_score, current_language_state = eval(infersent_model, model, crit, classify_crit, valid_dataset, vars(opt))
                 current_score = current_language_state['CIDEr'] if not opt.eval_semantics else current_semantics_score
                 vis.log('{}'.format('cider score is ' if not opt.eval_semantics else 'semantics_score is') + str(current_score))
                 if best_score is None or current_score > best_score:
