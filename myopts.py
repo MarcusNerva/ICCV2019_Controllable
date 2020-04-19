@@ -67,7 +67,7 @@ def parse_opt():
     parser.add_argument('--learning_rate', type=float, default=4e-4, help='learning rate')
     parser.add_argument('--learning_rate_decay_start', type=int, default=-1, help='after how many iteration begin learning rate decay')
     parser.add_argument('--learning_rate_decay_every', type=int, default=4, help='for every x iteration learning rate have to decay')
-    parser.add_argument('--learning_rate_decay_rate', type=float, default=0.7)
+    parser.add_argument('--learning_rate_decay_rate', type=float, default=0.5)
 
     parser.add_argument('--scheduled_sampling_start', type=int, default=-1, help='after x iteration to start decay groundtruth probability')
     parser.add_argument('--scheduled_sampling_increase_every', type=int, default=5, help='every x iterations to increase scheduled_sampling')
