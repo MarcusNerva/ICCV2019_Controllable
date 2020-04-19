@@ -7,6 +7,7 @@ from models.describer_generator import Caption_generator
 from eval.eval_cap import eval
 from data.dataset import load_dataset_cap, get_itow
 from models.loss import LanguageModelCriterion, ClassifierCriterion, RewardCriterion
+from infersent_model import InferSent
 import myopts
 
 if __name__ == '__main__':
@@ -20,6 +21,30 @@ if __name__ == '__main__':
     model.to(device)
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
+
+    model_version = 1
+    MODEL_PATH = opt.infersent_model_path
+    assert MODEL_PATH is not None, '--infersent_model_path is None!'
+    MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
+    params_model = {
+        'bsize': 64,
+        'word_emb_dim': 300,
+        'enc_lstm_dim': 2048,
+        'pool_type': 'max',
+        'dpout_model': 0.0,
+        'version': model_version
+    }
+    infersent_model = InferSent(params_model)
+    infersent_model.load_state_dict(torch.load(MODEL_PATH))
+    infersent_model = infersent_model.to(device)
+    W2V_PATH = opt.w2v_path
+    assert W2V_PATH is not None, '--w2v_path is None!'
+    infersent_model.set_w2v_path(W2V_PATH)
+    # sentences_path = os.path.join(opt.data_path, 'sentences.pkl')
+    # sentences = load_pkl(sentences_path)
+    # infersent_model.build_vocab(sentences, tokenize=True)
+    infersent_model.build_vocab_k_words(K=100000)
+
     if not opt.eval_semantics:
         avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
         print(language_state)
