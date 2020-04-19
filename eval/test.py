@@ -46,9 +46,9 @@ if __name__ == '__main__':
     infersent_model.build_vocab_k_words(K=100000)
 
     if not opt.eval_semantics:
-        avg_loss, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
+        avg_loss, language_state = eval(infersent_model, model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
         print(language_state)
     else:
-        semantics_score, language_state = eval(model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
+        semantics_score, language_state = eval(infersent_model, model, crit, classify_crit, test_dataset, eval_kwargs=vars(opt))
         print('semantics_score is ', semantics_score)
         print(language_state)
