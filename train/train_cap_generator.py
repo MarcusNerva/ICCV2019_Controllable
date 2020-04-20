@@ -189,7 +189,7 @@ def train(opt):
 
         if opt.self_critical_after != -1 and epoch >= opt.self_critical_after:
             sc_flag = True
-            opt.save_checkpoint_every = 500
+            opt.save_checkpoint_every = 250
         else:
             sc_flag = False
         # sc_flag = True
