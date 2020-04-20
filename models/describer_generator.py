@@ -51,6 +51,11 @@ class Caption_generator(nn.Module):
         # nn.init.xavier_uniform_(self.embed.weight.data, gain=nn.init.calculate_gain('relu'))
         # nn.init.xavier_uniform_(self.logit.weight.data, gain=nn.init.calculate_gain('relu'))
         # self.logit.bias.data.fill_(0)
+        nn.init.xavier_uniform_(self.state_init_h0.weight.data)
+        nn.init.xavier_uniform_(self.state_init_h1.weight.data)
+        nn.init.xavier_uniform_(self.state_init_c0.weight.data)
+        nn.init.xavier_uniform_(self.state_init_c1.weight.data)
+
 
     def init_hidden(self, feat, feat_mask):
         feat_ = torch.from_numpy(np.sum(feat.detach().cpu().numpy(), axis=1, dtype=np.float32))

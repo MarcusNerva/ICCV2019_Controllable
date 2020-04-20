@@ -22,6 +22,12 @@ class One_input_lstm(nn.Module):
         if self.drop_probability is not None:
             self.dropout = nn.Dropout(self.drop_probability)
 
+        self.init_weight()
+
+    def init_weight(self):
+        nn.init.xavier_uniform_(self.i2h.weight.data)
+        nn.init.xavier_uniform_(self.h2h.weight.data)
+
     def forward(self, input, state, mask=None):
         all_input_sums = self.i2h(input) + self.h2h(state[0][-1])
         sigmoid_chunk = all_input_sums.narrow(dim=1, start=0, length=3 * self.rnn_size)
@@ -55,6 +61,13 @@ class Two_inputs_lstmcell(nn.Module):
         self.h2h = nn.Linear(self.rnn_size, self.rnn_size * 4)
         if self.drop_probability is not None:
             self.dropout = nn.Dropout(drop_probabilily)
+
+        self.init_weight()
+
+    def init_weight(self):
+        nn.init.xavier_uniform_(self.i2h.weight.data)
+        nn.init.xavier_uniform_(self.v2h.weight.data)
+        nn.init.xavier_uniform_(self.h2h.weight.data)
 
     def forward(self, input0, input1, state, mask=None):
         all_input_sums = self.i2h(input0) + self.v2h(input1) + self.h2h(state[0][-1])
@@ -94,6 +107,13 @@ class Pos_decoder(nn.Module):
         self.v2a = nn.Linear(self.visual_size, self.att_size)
         self.to_e = nn.Linear(self.att_size, 1)
 
+        # self.init_weight()
+
+    def init_weight(self):
+        nn.init.xavier_uniform_(self.h2a.weight.data)
+        nn.init.xavier_uniform_(self.v2a.weight.data)
+        nn.init.xavier_uniform_(self.to_e.weight.data)
+
     def forward(self, word, visual_feat, word_mask, state):
         # print('-----------visual_feat.shape is ', visual_feat.shape, '-----------')
         # print('++++++++++ part0.shape is ', self.h2a(state[0][-1]).unsqueeze(1).shape, ' ++++++++++++')
@@ -127,6 +147,13 @@ class Describe_decoder(nn.Module):
         self.h2a = nn.Linear(2 * self.rnn_size, self.att_size)
         self.v2a = nn.Linear(self.visual_size, self.att_size)
         self.to_e = nn.Linear(self.att_size, 1)
+
+        self.init_weight()
+
+    def init_weight(self):
+        nn.init.xavier_uniform_(self.h2a.weight.data)
+        nn.init.xavier_uniform_(self.v2a.weight.data)
+        nn.init.xavier_uniform_(self.to_e.weight.data)
 
     def forward(self, word, word_mask, visual_info, pos_feat, state):
         assert len(state) == 2, 'input parameters state expect a list with 2 elements'
