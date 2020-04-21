@@ -17,15 +17,15 @@ class One_input_lstm(nn.Module):
         self.input_size = input_size
         self.rnn_size = rnn_size
         self.drop_probability = drop_probability
-        self.i2h = nn.Sequential(nn.Linear(self.input_size, 4 * self.rnn_size),
-                                 nn.BatchNorm1d(4 * self.rnn_size),
-                                 nn.ReLU(True))
-        self.h2h = nn.Sequential(nn.Linear(self.rnn_size, 4 * self.rnn_size),
-                                 nn.BatchNorm1d(4 * self.rnn_size),
-                                 nn.ReLU(True))
+        # self.i2h = nn.Sequential(nn.Linear(self.input_size, 4 * self.rnn_size),
+        #                          nn.BatchNorm1d(4 * self.rnn_size),
+        #                          nn.ReLU(True))
+        # self.h2h = nn.Sequential(nn.Linear(self.rnn_size, 4 * self.rnn_size),
+        #                          nn.BatchNorm1d(4 * self.rnn_size),
+        #                          nn.ReLU(True))
 
-        # self.i2h = nn.Linear(self.input_size, 4 * self.rnn_size)
-        # self.h2h = nn.Linear(self.rnn_size, 4 * self.rnn_size)
+        self.i2h = nn.Linear(self.input_size, 4 * self.rnn_size)
+        self.h2h = nn.Linear(self.rnn_size, 4 * self.rnn_size)
 
         if self.drop_probability is not None:
             self.dropout = nn.Dropout(self.drop_probability)
@@ -37,8 +37,8 @@ class One_input_lstm(nn.Module):
         # nn.init.xavier_uniform_(self.h2h.weight.data)
 
         initrange = 0.1
-        # self.i2h.weight.data.uniform_(-initrange, initrange)
-        # self.h2h.weight.data.uniform_(-initrange, initrange)
+        self.i2h.weight.data.uniform_(-initrange, initrange)
+        self.h2h.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, state, mask=None):
         all_input_sums = self.i2h(input) + self.h2h(state[0][-1])
@@ -68,19 +68,19 @@ class Two_inputs_lstmcell(nn.Module):
         self.visual_size = visual_size
         self.rnn_size = rnn_size
         self.drop_probability = drop_probabilily
-        self.i2h = nn.Sequential(nn.Linear(self.input_size, self.rnn_size * 4),
-                                 nn.BatchNorm1d(self.rnn_size * 4),
-                                 nn.ReLU(True))
-        self.v2h = nn.Sequential(nn.Linear(self.visual_size, self.rnn_size * 4),
-                                 nn.BatchNorm1d(self.rnn_size * 4),
-                                 nn.ReLU(True))
-        self.h2h = nn.Sequential(nn.Linear(self.rnn_size, self.rnn_size * 4),
-                                 nn.BatchNorm1d(self.rnn_size * 4),
-                                 nn.ReLU(True))
+        # self.i2h = nn.Sequential(nn.Linear(self.input_size, self.rnn_size * 4),
+        #                          nn.BatchNorm1d(self.rnn_size * 4),
+        #                          nn.ReLU(True))
+        # self.v2h = nn.Sequential(nn.Linear(self.visual_size, self.rnn_size * 4),
+        #                          nn.BatchNorm1d(self.rnn_size * 4),
+        #                          nn.ReLU(True))
+        # self.h2h = nn.Sequential(nn.Linear(self.rnn_size, self.rnn_size * 4),
+        #                          nn.BatchNorm1d(self.rnn_size * 4),
+        #                          nn.ReLU(True))
 
-        # self.i2h = nn.Linear(self.input_size, self.rnn_size * 4)
-        # self.v2h = nn.Linear(self.visual_size, self.rnn_size * 4)
-        # self.h2h = nn.Linear(self.rnn_size, self.rnn_size * 4)
+        self.i2h = nn.Linear(self.input_size, self.rnn_size * 4)
+        self.v2h = nn.Linear(self.visual_size, self.rnn_size * 4)
+        self.h2h = nn.Linear(self.rnn_size, self.rnn_size * 4)
 
         if self.drop_probability is not None:
             self.dropout = nn.Dropout(drop_probabilily)
@@ -93,9 +93,9 @@ class Two_inputs_lstmcell(nn.Module):
         # nn.init.xavier_uniform_(self.h2h.weight.data)
 
         initrange = 0.1
-        # self.i2h.weight.data.uniform_(-initrange, initrange)
-        # self.v2h.weight.data.uniform_(-initrange, initrange)
-        # self.h2h.weight.data.uniform_(-initrange, initrange)
+        self.i2h.weight.data.uniform_(-initrange, initrange)
+        self.v2h.weight.data.uniform_(-initrange, initrange)
+        self.h2h.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input0, input1, state, mask=None):
         all_input_sums = self.i2h(input0) + self.v2h(input1) + self.h2h(state[0][-1])
@@ -178,15 +178,15 @@ class Describe_decoder(nn.Module):
         self.lstm0 = Two_inputs_lstmcell(input_size=self.word_embed_size, visual_size=self.pos_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
         self.lstm1 = Two_inputs_lstmcell(input_size=self.rnn_size, visual_size=self.visual_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
         self.dropout = nn.Dropout(opt.drop_probability)
-        self.h2a = nn.Sequential(nn.Linear(2 * self.rnn_size, self.att_size),
-                                 nn.BatchNorm1d(self.att_size),
-                                 nn.ReLU())
-        self.v2a = nn.Sequential(nn.Linear(self.visual_size, self.att_size),
-                                 nn.BatchNorm1d(self.seq_length),
-                                 nn.ReLU())
+        # self.h2a = nn.Sequential(nn.Linear(2 * self.rnn_size, self.att_size),
+        #                          nn.BatchNorm1d(self.att_size),
+        #                          nn.ReLU())
+        # self.v2a = nn.Sequential(nn.Linear(self.visual_size, self.att_size),
+        #                          nn.BatchNorm1d(self.seq_length),
+        #                          nn.ReLU())
 
-        # self.h2a = nn.Linear(2 * self.rnn_size, self.att_size)
-        # self.v2a = nn.Linear(self.visual_size, self.att_size)
+        self.h2a = nn.Linear(2 * self.rnn_size, self.att_size)
+        self.v2a = nn.Linear(self.visual_size, self.att_size)
         self.to_e = nn.Linear(self.att_size, 1)
 
         self.init_weight()
@@ -197,9 +197,9 @@ class Describe_decoder(nn.Module):
         # nn.init.xavier_uniform_(self.to_e.weight.data)
 
         initrange = 0.1
-        # self.h2a.weight.data.uniform_(-initrange, initrange)
-        # self.v2a.weight.data.uniform_(-initrange, initrange)
-        # self.to_e.weight.data.uniform_(-initrange, initrange)
+        self.h2a.weight.data.uniform_(-initrange, initrange)
+        self.v2a.weight.data.uniform_(-initrange, initrange)
+        self.to_e.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, word, word_mask, visual_info, pos_feat, state):
         assert len(state) == 2, 'input parameters state expect a list with 2 elements'

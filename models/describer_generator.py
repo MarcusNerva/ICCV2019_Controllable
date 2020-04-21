@@ -30,21 +30,21 @@ class Caption_generator(nn.Module):
         self.decoder = Describe_decoder(opt=opt)
         self.embed = nn.Embedding(self.vocab_size, self.word_embed_size)
         self.logit = nn.Linear(self.rnn_size, self.vocab_size)
-        self.classifier = nn.Sequential(
-            nn.Linear(self.rnn_size, 128),
-            nn.BatchNorm1d(128),
-            nn.ReLU(),
-            nn.Dropout(self.drop_probability),
-            nn.Linear(128, self.category_size),
-            nn.BatchNorm1d(self.category_size),
-            nn.ReLU()
-        )
         # self.classifier = nn.Sequential(
         #     nn.Linear(self.rnn_size, 128),
+        #     nn.BatchNorm1d(128),
         #     nn.ReLU(),
         #     nn.Dropout(self.drop_probability),
-        #     nn.Linear(128, self.category_size)
+        #     nn.Linear(128, self.category_size),
+        #     nn.BatchNorm1d(self.category_size),
+        #     nn.ReLU()
         # )
+        self.classifier = nn.Sequential(
+            nn.Linear(self.rnn_size, 128),
+            nn.ReLU(),
+            nn.Dropout(self.drop_probability),
+            nn.Linear(128, self.category_size)
+        )
         self.state_init_h0 = nn.Linear(self.visual_size, self.rnn_size)
         self.state_init_c0 = nn.Linear(self.visual_size, self.rnn_size)
         self.state_init_h1 = nn.Linear(self.visual_size, self.rnn_size)
@@ -66,10 +66,10 @@ class Caption_generator(nn.Module):
         # nn.init.xavier_uniform_(self.state_init_c0.weight.data)
         # nn.init.xavier_uniform_(self.state_init_c1.weight.data)
 
-        # self.state_init_h0.weight.data.uniform_(-initrange, initrange)
-        # self.state_init_c0.weight.data.uniform_(-initrange, initrange)
-        # self.state_init_h1.weight.data.uniform_(-initrange, initrange)
-        # self.state_init_c1.weight.data.uniform_(-initrange, initrange)
+        self.state_init_h0.weight.data.uniform_(-initrange, initrange)
+        self.state_init_c0.weight.data.uniform_(-initrange, initrange)
+        self.state_init_h1.weight.data.uniform_(-initrange, initrange)
+        self.state_init_c1.weight.data.uniform_(-initrange, initrange)
 
 
     def init_hidden(self, feat, feat_mask):
