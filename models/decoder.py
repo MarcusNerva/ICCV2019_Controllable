@@ -172,6 +172,7 @@ class Describe_decoder(nn.Module):
         self.pos_size = opt.pos_size
         self.rnn_size = opt.rnn_size
         self.att_size = opt.att_size
+        self.seq_length = opt.seq_length
         self.drop_probability = opt.drop_probability
         self.gate = Gate(opt.seed, self.word_embed_size, self.pos_size)
         self.lstm0 = Two_inputs_lstmcell(input_size=self.word_embed_size, visual_size=self.pos_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
@@ -181,7 +182,7 @@ class Describe_decoder(nn.Module):
                                  nn.BatchNorm1d(self.att_size),
                                  nn.ReLU())
         self.v2a = nn.Sequential(nn.Linear(self.visual_size, self.att_size),
-                                 nn.BatchNorm1d(self.att_size),
+                                 nn.BatchNorm1d(self.seq_length),
                                  nn.ReLU())
 
         # self.h2a = nn.Linear(2 * self.rnn_size, self.att_size)
