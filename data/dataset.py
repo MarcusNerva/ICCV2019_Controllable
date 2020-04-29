@@ -5,6 +5,7 @@ import os
 import sys
 sys.path.append('../')
 import pickle
+import argparse
 import numpy as np
 import time
 import myopts
@@ -412,7 +413,7 @@ def load_dataset_pos(opt):
     test_dataset = Dset_test(test_pkl=test_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0, feat1_store=feat1, wtoi_path=wtoi_path, nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
     return train_dataset, valid_dataset, test_dataset
 
-def load_dataset_cap(opt):
+def load_dataset_cap_for_prediction(opt:argparse.Namespace):
     train_pkl = os.path.join(opt.data_path, 'train.pkl')
     valid_pkl = os.path.join(opt.data_path, 'valid.pkl')
     test_pkl = os.path.join(opt.data_path, 'test.pkl')
@@ -425,9 +426,35 @@ def load_dataset_cap(opt):
     pos_valid_path = os.path.join(opt.data_path, 'pos_features/valid.hdf5')
     pos_test_path = os.path.join(opt.data_path, 'pos_features/test.hdf5')
 
-    # pos_train_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
-    # pos_valid_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
-    # pos_test_path = os.path.join(opt.data_path, 'postagsequence.hdf5')
+    feat0 = h5py.File(feat0_path, 'r')
+    feat1 = h5py.File(feat1_path, 'r')
+    pos_train_feature = h5py.File(pos_train_path, 'r')
+    pos_valid_feature = h5py.File(pos_valid_path, 'r')
+    pos_test_feature = h5py.File(pos_test_path, 'r')
+
+    train_dataset = Dset_test(test_pkl=train_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0,
+                              feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_train_feature,
+                              nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
+    valid_dataset = Dset_test(test_pkl=valid_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0,
+                              feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_valid_feature,
+                              nwords=opt.vocab_size, K=opt.seq_length, opt=opt)
+    test_dataset = Dset_test(test_pkl=test_pkl, cap_pkl=cap_pkl, cate_pkl=cate_pkl, feat0_store=feat0,
+                             feat1_store=feat1, wtoi_path=wtoi_path, pos_store=pos_test_feature,
+                             nwords=opt.vocab_size,K=opt.seq_length, opt=opt)
+    return train_dataset, valid_dataset, test_dataset
+
+def load_dataset_cap(opt):
+    train_pkl = os.path.join(opt.data_path, 'train.pkl')
+    valid_pkl = os.path.join(opt.data_path, 'valid.pkl')
+    test_pkl = os.path.join(opt.data_path, 'test.pkl')
+    cap_pkl = os.path.join(opt.data_path, 'CAP.pkl')
+    cate_pkl = os.path.join(opt.data_path, 'category.pkl')
+    feat0_path = os.path.join(opt.data_path, 'IR_feats.hdf5')
+    feat1_path = os.path.join(opt.data_path, 'I3D_feats.hdf5')
+    wtoi_path = os.path.join(opt.data_path, 'worddict.pkl')
+    pos_train_path = os.path.join(opt.data_path, 'pos_features/train.hdf5')
+    pos_valid_path = os.path.join(opt.data_path, 'pos_features/valid.hdf5')
+    pos_test_path = os.path.join(opt.data_path, 'pos_features/test.hdf5')
 
     feat0 = h5py.File(feat0_path, 'r')
     feat1 = h5py.File(feat1_path, 'r')
