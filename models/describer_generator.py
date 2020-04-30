@@ -66,10 +66,10 @@ class Caption_generator(nn.Module):
         # nn.init.xavier_uniform_(self.state_init_c0.weight.data)
         # nn.init.xavier_uniform_(self.state_init_c1.weight.data)
 
-        self.state_init_h0.weight.data.uniform_(-initrange, initrange)
-        self.state_init_c0.weight.data.uniform_(-initrange, initrange)
-        self.state_init_h1.weight.data.uniform_(-initrange, initrange)
-        self.state_init_c1.weight.data.uniform_(-initrange, initrange)
+        # self.state_init_h0.weight.data.uniform_(-initrange, initrange)
+        # self.state_init_c0.weight.data.uniform_(-initrange, initrange)
+        # self.state_init_h1.weight.data.uniform_(-initrange, initrange)
+        # self.state_init_c1.weight.data.uniform_(-initrange, initrange)
 
 
     def init_hidden(self, feat, feat_mask):

@@ -37,8 +37,8 @@ class One_input_lstm(nn.Module):
         # nn.init.xavier_uniform_(self.h2h.weight.data)
 
         initrange = 0.1
-        self.i2h.weight.data.uniform_(-initrange, initrange)
-        self.h2h.weight.data.uniform_(-initrange, initrange)
+        # self.i2h.weight.data.uniform_(-initrange, initrange)
+        # self.h2h.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input, state, mask=None):
         all_input_sums = self.i2h(input) + self.h2h(state[0][-1])
@@ -93,9 +93,9 @@ class Two_inputs_lstmcell(nn.Module):
         # nn.init.xavier_uniform_(self.h2h.weight.data)
 
         initrange = 0.1
-        self.i2h.weight.data.uniform_(-initrange, initrange)
-        self.v2h.weight.data.uniform_(-initrange, initrange)
-        self.h2h.weight.data.uniform_(-initrange, initrange)
+        # self.i2h.weight.data.uniform_(-initrange, initrange)
+        # self.v2h.weight.data.uniform_(-initrange, initrange)
+        # self.h2h.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, input0, input1, state, mask=None):
         all_input_sums = self.i2h(input0) + self.v2h(input1) + self.h2h(state[0][-1])
@@ -197,9 +197,9 @@ class Describe_decoder(nn.Module):
         # nn.init.xavier_uniform_(self.to_e.weight.data)
 
         initrange = 0.1
-        self.h2a.weight.data.uniform_(-initrange, initrange)
-        self.v2a.weight.data.uniform_(-initrange, initrange)
-        self.to_e.weight.data.uniform_(-initrange, initrange)
+        # self.h2a.weight.data.uniform_(-initrange, initrange)
+        # self.v2a.weight.data.uniform_(-initrange, initrange)
+        # self.to_e.weight.data.uniform_(-initrange, initrange)
 
     def forward(self, word, word_mask, visual_info, pos_feat, state):
         assert len(state) == 2, 'input parameters state expect a list with 2 elements'
