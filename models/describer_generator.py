@@ -4,7 +4,8 @@ import torch.nn.init as init
 import sys
 sys.path.append('../')
 from models.decoder import *
-from models.encoders import *
+from models.encoders import Encoder_two_fc
+from models.encoders import Pos_encoder_two_fc as Encoder_two_fc_nogate
 from models.gate import *
 from torch.utils.data import DataLoader
 import myopts
@@ -26,7 +27,11 @@ class Caption_generator(nn.Module):
         self.sample_probability = 0.0
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        self.encoder = Encoder_two_fc(opt=opt)
+        # utilize XGate mechanism
+        # self.encoder = Encoder_two_fc(opt=opt)
+        # do not utilize XGate mechanism
+        self.encoder = Encoder_two_fc_nogate(opt=opt)
+
         self.decoder = Describe_decoder(opt=opt)
         self.embed = nn.Embedding(self.vocab_size, self.word_embed_size)
         self.logit = nn.Linear(self.rnn_size, self.vocab_size)

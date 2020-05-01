@@ -220,6 +220,45 @@ class Describe_decoder(nn.Module):
         two_layer_state = [state_0, state_1]
         return output1, two_layer_state
 
+class Describe_decoder_withoutPOS(nn.Module):
+    def __init__(self, opt):
+        super(Describe_decoder_withoutPOS, self).__init__()
+        torch.manual_seed(opt.seed)
+        torch.cuda.manual_seed(opt.seed)
+        self.word_embed_size = opt.word_embed_size
+        self.visual_size = opt.rnn_size
+        self.pos_size = opt.pos_size
+        self.rnn_size = opt.rnn_size
+        self.att_size = opt.att_size
+        self.seq_length = opt.seq_length
+        self.drop_probability = opt.drop_probability
+        self.lstm0 = One_input_lstm(input_size=self.word_embed_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
+        self.lstm1 = Two_inputs_lstmcell(input_size=self.rnn_size, visual_size=self.visual_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
+        self.dropout = nn.Dropout(opt.drop_probability)
+
+        self.h2a = nn.Linear(2 * self.rnn_size, self.att_size)
+        self.v2a = nn.Linear(self.visual_size, self.att_size)
+        self.to_e = nn.Linear(self.att_size, 1)
+
+        
+    def forward(self, word, word_mask, visual_info, pos_feat, state):
+        assert len(state) == 2, 'input parameters state expect a list with 2 elements'
+        state_0, state_1 = state[0], state[1]
+
+        part0 = self.h2a(torch.cat([state_0[0][-1], state_1[0][-1]], dim=1)).unsqueeze(1)
+        part1 = self.v2a(visual_info)
+        temp = torch.tanh(part0 + part1)
+        e = self.to_e(temp)
+        alpha = torch.softmax(e.transpose(2, 1), dim=-1).transpose(2, 1)
+        attention_visual_info = alpha * visual_info
+        attention_visual_info = torch.sum(attention_visual_info, dim=1)
+
+        output0, state_0 = self.lstm0(input=word, state=state_0, mask=word_mask)
+        output1, state_1 = self.lstm1(input0=output0, input1=attention_visual_info, state=state_1, mask=word_mask)
+
+        two_layer_state = [state_0, state_1]
+        return output1, two_layer_state
+
 class Opt_stub(object):
     def __init__(self):
         super(Opt_stub, self).__init__()
