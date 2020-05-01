@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     model = Caption_generator(opt)
     assert opt.start_from is not None, 'opt.start_from is None!'
-    state_dict_path = os.path.join(opt.start_from, 'cap_2e-4_0.5_4_xavier.pth')
+    state_dict_path = os.path.join(opt.start_from, 'cap-bestmodel.pth')
     model.load_state_dict(torch.load(state_dict_path))
     model = model.to(device)
     kwargs = vars(opt)
