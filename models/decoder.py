@@ -232,7 +232,7 @@ class Describe_decoder_withoutPOS(nn.Module):
         self.att_size = opt.att_size
         self.seq_length = opt.seq_length
         self.drop_probability = opt.drop_probability
-        self.lstm0 = One_input_lstm(input_size=self.word_embed_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
+        self.lstm0 = One_input_lstm(input_size=self.word_embed_size, rnn_size=self.rnn_size, drop_probability=opt.drop_probability)
         self.lstm1 = Two_inputs_lstmcell(input_size=self.rnn_size, visual_size=self.visual_size, rnn_size=self.rnn_size, drop_probabilily=opt.drop_probability)
         self.dropout = nn.Dropout(opt.drop_probability)
 
