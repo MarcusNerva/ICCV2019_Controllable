@@ -32,7 +32,7 @@ class Caption_generator(nn.Module):
         # do not utilize XGate mechanism
         self.encoder = Encoder_two_fc_nogate(opt=opt)
 
-        self.decoder = Describe_decoder(opt=opt)
+        self.decoder = Describe_decoder_withoutPOS(opt=opt)
         self.embed = nn.Embedding(self.vocab_size, self.word_embed_size)
         self.logit = nn.Linear(self.rnn_size, self.vocab_size)
         # self.classifier = nn.Sequential(
