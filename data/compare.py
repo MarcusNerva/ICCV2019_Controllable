@@ -77,7 +77,7 @@ if __name__ == '__main__':
     keys = sorted(keys, key=lambda x: int(x[3:]))
 
     for item in keys:
-        print(item)
+        # print(item)
         sentences0.append(content0[item])
         sentences1.append(content1[item])
         sentences2.append(content2[item])
