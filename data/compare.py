@@ -55,8 +55,14 @@ if __name__ == '__main__':
     scores0, scores1, scores2, scores3, scores4 = [], [], [], [], []
     sentences0, sentences1, sentences2, sentences3, sentences4 = [], [], [], [], []
     compare01, compare02, compare03, compare04 = [], [], [], []
+    keys = []
 
     for item in content0:
+        keys.append(item)
+
+    keys = sorted(keys, key=lambda x: int(x[3:]))
+
+    for item in keys:
         print(item)
         sentences0.append(content0[item])
         sentences1.append(content1[item])
@@ -70,7 +76,7 @@ if __name__ == '__main__':
     embeddings3 = infersent_model.encode(sentences3)
     embeddings4 = infersent_model.encode(sentences4)
 
-    for i in range(7010, len(embeddings0)):
+    for i in range(len(embeddings0)):
         vid = 'vid' + str(i + 1)
         b_vid = vid.encode()
         answers = total_embeddings[b_vid]
