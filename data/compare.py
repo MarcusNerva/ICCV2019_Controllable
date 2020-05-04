@@ -19,7 +19,7 @@ def test(opt):
     for key in content0:
         sentence0 = content0[key].strip()
         sentence1 = content1[key].strip()
-        if not sentences0 == sentence1:
+        if not sentence0 == sentence1:
             print(key)
             print(sentence0)
             print(sentence1)
