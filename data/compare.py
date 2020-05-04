@@ -69,7 +69,7 @@ if __name__ == '__main__':
     embeddings3 = infersent_model.encode(sentences3)
     embeddings4 = infersent_model.encode(sentences4)
 
-    for i in range(len(embeddings0)):
+    for i in range(7010, len(embeddings0)):
         vid = 'vid' + str(i + 1)
         b_vid = vid.encode()
         answers = total_embeddings[b_vid]
