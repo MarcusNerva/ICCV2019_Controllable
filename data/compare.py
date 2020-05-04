@@ -34,6 +34,7 @@ if __name__ == '__main__':
     path3 = os.path.join(opt.data_path, '3.pkl')
     path4 = os.path.join(opt.data_path, '4.pkl')
     total_embeddings_path = os.path.join(opt.data_path, 'sentence_embeddings.pkl')
+    test(opt=opt)
 
     with open(path0, 'rb') as f:
         content0 = pickle.load(f)
