@@ -88,6 +88,8 @@ def eval(infersent, model, crit, classify_crit, dataset, eval_kwargs={}):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     assert data_path is not None, 'The data_path is not exist!'
 
+    predictions_save = OrderedDict()
+
     model.eval()
     loss_sum = 0
     loss_number = 1e-8
@@ -122,6 +124,7 @@ def eval(infersent, model, crit, classify_crit, dataset, eval_kwargs={}):
         for t in range(seqs.shape[0]):
             total_prediction.append(decode_idx(seqs[t], id_word))
             vid_t = video_id[t]
+            predictions_save[vid_t.decode()] = total_prediction[-1]
 
             temp = []
             number = len(caption_set[vid_t])
@@ -129,6 +132,10 @@ def eval(infersent, model, crit, classify_crit, dataset, eval_kwargs={}):
                 temp.append(caption_set[vid_t][x][b'tokenized'].decode())
             total_groundtruth.append(temp)
             total_sentence_embeddings.append(sentence_embeddings[vid_t])
+
+    with open(os.path.join(opt.data_path, 'test_prediction.pkl'), 'wb') as f:
+        import pickle
+        pickle.dump(predictions_save, f)
 
     if eval_semantics:
         semantics_score = semantics_eval(model=infersent, sample_seqs=total_prediction, groundtruth_seqs=total_groundtruth, groundtruth_embeddings=total_sentence_embeddings, eval_kwargs=eval_kwargs)

@@ -9,6 +9,20 @@ import pickle
 from eval.eval_cap import cosine
 from collections import OrderedDict
 
+def test(opt):
+    path0 = os.path.join(opt.data_path, 'test_prediction.pkl')
+    path1 = os.path.join(opt.data_path, 'extracted_test_prediction.pkl')
+    with open(path0, 'rb') as f:
+        content0 = pickle.load(f)
+    with open(path1, 'rb') as f:
+        content1 = pickle.load(f)
+    for key in content0:
+        sentence0 = content0[key].strip()
+        sentence1 = content1[key].strip()
+        if not sentences0 == sentence1:
+            print(key)
+
+
 if __name__ == '__main__':
     opt = myopts.parse_opt()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -96,7 +110,7 @@ if __name__ == '__main__':
         if max_score0 > max_score1: compare01.append(vid)
         if max_score0 > max_score2: compare02.append(vid)
         if max_score0 > max_score3: compare03.append(vid)
-        if max_score0 > max_score3: compare04.append(vid)
+        if max_score0 > max_score4: compare04.append(vid)
 
     compare_store = OrderedDict()
     compare_store['compare01'] = compare01
