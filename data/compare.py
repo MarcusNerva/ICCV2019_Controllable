@@ -99,4 +99,4 @@ if __name__ == '__main__':
 
     store_path = os.path.join(opt.data_path, 'compare_store.pkl')
     with open(store_path, 'wb') as f:
-        pickle.dumps(compare_store, f)
+        pickle.dump(compare_store, f)
