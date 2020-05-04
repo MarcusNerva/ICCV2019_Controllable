@@ -98,5 +98,5 @@ if __name__ == '__main__':
     print('len(compare03) == ', len(compare03))
 
     store_path = os.path.join(opt.data_path, 'compare_store.pkl')
-    with open(store_path, 'rb') as f:
+    with open(store_path, 'wb') as f:
         pickle.dumps(compare_store, f)
