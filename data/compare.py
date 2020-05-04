@@ -21,6 +21,8 @@ def test(opt):
         sentence1 = content1[key].strip()
         if not sentences0 == sentence1:
             print(key)
+            print(sentence0)
+            print(sentence1)
 
 
 if __name__ == '__main__':
