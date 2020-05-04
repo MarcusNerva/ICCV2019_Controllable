@@ -10,6 +10,7 @@ from eval.eval_cap import cosine
 from collections import OrderedDict
 
 def test(opt):
+    print('i am in')
     path0 = os.path.join(opt.data_path, 'test_prediction.pkl')
     path1 = os.path.join(opt.data_path, 'extracted_test_prediction.pkl')
     with open(path0, 'rb') as f:
