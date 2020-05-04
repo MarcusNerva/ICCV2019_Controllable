@@ -3,7 +3,7 @@ sys.path.append('../')
 import os
 import torch
 from torch.utils.data import DataLoader
-from data.dataset import load_dataset_cap, collate_fn_cap, load_pkl, get_caps
+from data.dataset import load_dataset_cap_for_prediction, collate_fn_cap, load_pkl, get_caps
 from infersent_model import InferSent
 from eval.eval_cap import cosine
 import myopts
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     model.set_w2v_path(W2V_PATH)
     model.build_vocab_k_words(K=100000)
 
-    train_dataset, valid_dataset, test_dataset = load_dataset_cap(opt=opt)
+    train_dataset, valid_dataset, test_dataset = load_dataset_cap_for_prediction(opt=opt)
     train_loader = DataLoader(dataset=train_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
     valid_loader = DataLoader(dataset=valid_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
     test_loader = DataLoader(dataset=test_dataset, batch_size=opt.batch_size, shuffle=True, collate_fn=collate_fn_cap)
