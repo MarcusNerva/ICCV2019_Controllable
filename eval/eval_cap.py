@@ -133,7 +133,7 @@ def eval(infersent, model, crit, classify_crit, dataset, eval_kwargs={}):
             total_groundtruth.append(temp)
             total_sentence_embeddings.append(sentence_embeddings[vid_t])
 
-    with open(os.path.join(opt.data_path, 'test_prediction.pkl'), 'wb') as f:
+    with open(os.path.join(data_path, 'test_prediction.pkl'), 'wb') as f:
         import pickle
         pickle.dump(predictions_save, f)
 
