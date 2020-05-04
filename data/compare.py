@@ -57,6 +57,7 @@ if __name__ == '__main__':
     compare01, compare02, compare03, compare04 = [], [], [], []
 
     for item in content0:
+        print(item)
         sentences0.append(content0[item])
         sentences1.append(content1[item])
         sentences2.append(content2[item])
