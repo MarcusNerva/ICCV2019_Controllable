@@ -88,11 +88,11 @@ if __name__ == '__main__':
         sentences3.append(content3[item])
         sentences4.append(content4[item])
 
-    embeddings0 = infersent_model.encode(sentences0)
-    embeddings1 = infersent_model.encode(sentences1)
-    embeddings2 = infersent_model.encode(sentences2)
-    embeddings3 = infersent_model.encode(sentences3)
-    embeddings4 = infersent_model.encode(sentences4)
+    embeddings0 = infersent_model.encode(sentences0, bsize=128, tokenize=True)
+    embeddings1 = infersent_model.encode(sentences1, bsize=128, tokenize=True)
+    embeddings2 = infersent_model.encode(sentences2, bsize=128, tokenize=True)
+    embeddings3 = infersent_model.encode(sentences3, bsize=128, tokenize=True)
+    embeddings4 = infersent_model.encode(sentences4, bsize=128, tokenize=True)
 
     for i in range(7010, len(embeddings0)):
         vid = 'vid' + str(i + 1)
