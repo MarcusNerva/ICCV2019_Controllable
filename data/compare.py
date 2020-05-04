@@ -94,11 +94,13 @@ if __name__ == '__main__':
     embeddings3 = infersent_model.encode(sentences3, bsize=128, tokenize=True)
     embeddings4 = infersent_model.encode(sentences4, bsize=128, tokenize=True)
 
+    print(len(embeddings0))
     for i in range(7010, len(embeddings0)):
         vid = 'vid' + str(i + 1)
         b_vid = vid.encode()
         answers = total_embeddings[b_vid]
         max_score0, max_score1, max_score2, max_score3, max_score4 = -1.0, -1.0, -1.0, -1.0, -1.0
+        print('len of answers is ', len(answers))
         for item in answers:
             max_score0 = max(max_score0, cosine(item, embeddings0[i]))
             max_score1 = max(max_score1, cosine(item, embeddings1[i]))
