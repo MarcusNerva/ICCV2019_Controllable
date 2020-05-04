@@ -16,6 +16,7 @@ if __name__ == '__main__':
     path1 = os.path.join(opt.data_path, '1.pkl')
     path2 = os.path.join(opt.data_path, '2.pkl')
     path3 = os.path.join(opt.data_path, '3.pkl')
+    path4 = os.path.join(opt.data_path, '4.pkl')
     total_embeddings_path = os.path.join(opt.data_path, 'sentence_embeddings.pkl')
 
     with open(path0, 'rb') as f:
@@ -26,6 +27,8 @@ if __name__ == '__main__':
         content2 = pickle.load(f)
     with open(path3, 'rb') as f:
         content3 = pickle.load(f)
+    with open(path4, 'rb') as f:
+        content4 = pickle.load(f)
     with open(total_embeddings_path, 'rb') as f:
         total_embeddings = pickle.load(f)
 
@@ -49,53 +52,61 @@ if __name__ == '__main__':
     infersent_model.set_w2v_path(W2V_PATH)
     infersent_model.build_vocab_k_words(K=100000)
 
-    scores0, scores1, scores2, scores3 = [], [], [], []
-    sentences0, sentences1, sentences2, sentences3 = [], [], [], []
-    compare01, compare02, compare03 = [], [], []
+    scores0, scores1, scores2, scores3, scores4 = [], [], [], [], []
+    sentences0, sentences1, sentences2, sentences3, sentences4 = [], [], [], [], []
+    compare01, compare02, compare03, compare04 = [], [], [], []
 
     for item in content0:
         sentences0.append(content0[item])
         sentences1.append(content1[item])
         sentences2.append(content2[item])
         sentences3.append(content3[item])
+        sentences4.append(content4[item])
 
     embeddings0 = infersent_model.encode(sentences0)
     embeddings1 = infersent_model.encode(sentences1)
     embeddings2 = infersent_model.encode(sentences2)
     embeddings3 = infersent_model.encode(sentences3)
+    embeddings4 = infersent_model.encode(sentences4)
 
     for i in range(len(embeddings0)):
         vid = 'vid' + str(i + 1)
         b_vid = vid.encode()
         answers = total_embeddings[b_vid]
-        max_score0, max_score1, max_score2, max_score3 = -1.0, -1.0, -1.0, -1.0
+        max_score0, max_score1, max_score2, max_score3, max_score4 = -1.0, -1.0, -1.0, -1.0, -1.0
         for item in answers:
             max_score0 = max(max_score0, cosine(item, embeddings0[i]))
             max_score1 = max(max_score1, cosine(item, embeddings1[i]))
             max_score2 = max(max_score2, cosine(item, embeddings2[i]))
             max_score3 = max(max_score3, cosine(item, embeddings3[i]))
+            max_score4 = max(max_score4, cosine(item, embeddings4[i]))
         scores0.append(max_score0)
         scores1.append(max_score1)
         scores2.append(max_score2)
         scores3.append(max_score3)
+        scores4.append(max_score4)
 
         if max_score0 > max_score1: compare01.append(vid)
         if max_score0 > max_score2: compare02.append(vid)
         if max_score0 > max_score3: compare03.append(vid)
+        if max_score0 > max_score3: compare04.append(vid)
 
     compare_store = OrderedDict()
     compare_store['compare01'] = compare01
     compare_store['compare02'] = compare02
     compare_store['compare03'] = compare03
+    compare_store['compare04'] = compare04
 
     print('mean_score0 == ', np.array(scores0).mean())
     print('mean_score1 == ', np.array(scores1).mean())
     print('mean_score2 == ', np.array(scores2).mean())
     print('mean_score3 == ', np.array(scores3).mean())
+    print('mean_score4 == ', np.array(scores4).mean())
 
     print('len(compare01) == ', len(compare01))
     print('len(compare02) == ', len(compare02))
     print('len(compare03) == ', len(compare03))
+    print('len(compare04) == ', len(compare04))
 
     store_path = os.path.join(opt.data_path, 'compare_store.pkl')
     with open(store_path, 'wb') as f:
