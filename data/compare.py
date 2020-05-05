@@ -9,21 +9,33 @@ import pickle
 from eval.eval_cap import cosine
 from collections import OrderedDict
 
-def test(opt):
-    print('i am in')
-    path0 = os.path.join(opt.data_path, 'test_prediction.pkl')
+def test(opt, infermodel, embed):
+    import math
+    EPS = 1e-4
+    # path0 = os.path.join(opt.data_path, 'test_prediction.pkl')
     path1 = os.path.join(opt.data_path, 'extracted_test_prediction.pkl')
-    with open(path0, 'rb') as f:
-        content0 = pickle.load(f)
+    # with open(path0, 'rb') as f:
+    #     content0 = pickle.load(f)
     with open(path1, 'rb') as f:
         content1 = pickle.load(f)
-    for key in content0:
-        sentence0 = content0[key].strip()
-        sentence1 = content1[key].strip()
-        if sentence0 == sentence1:
-            print(key)
-            print(sentence0)
-            print(sentence1)
+    store = []
+    for key in content1:
+        store.append(key)
+    store = sorted(store, key=lambda x: int(x[3:]))
+    sentences = []
+    for key in store:
+        sentences.append(content1[key])
+    embeddings = infermodel.encode(sentences, bsize=128, tokenize=True)
+    for i in range(len(embeddings)):
+        if not math.fabs(1.0 - cosine(embed[i], embeddings[i])) < EPS:
+            print(store[i])
+    # for key in content0:
+    #     sentence0 = content0[key].strip()
+    #     sentence1 = content1[key].strip()
+    #     if sentence0 == sentence1:
+    #         print(key)
+    #         print(sentence0)
+    #         print(sentence1)
 
 
 if __name__ == '__main__':
@@ -35,7 +47,7 @@ if __name__ == '__main__':
     path3 = os.path.join(opt.data_path, '3.pkl')
     path4 = os.path.join(opt.data_path, '4.pkl')
     total_embeddings_path = os.path.join(opt.data_path, 'sentence_embeddings.pkl')
-    test(opt=opt)
+    # test(opt=opt)
 
     with open(path0, 'rb') as f:
         content0 = pickle.load(f)
@@ -94,13 +106,15 @@ if __name__ == '__main__':
     embeddings3 = infersent_model.encode(sentences3, bsize=128, tokenize=True)
     embeddings4 = infersent_model.encode(sentences4, bsize=128, tokenize=True)
 
+    test(opt=opt, infermodel=infersent_model, embed=embeddings0)
+
     print(len(embeddings0))
     for i in range(7010, len(embeddings0)):
         vid = 'vid' + str(i + 1)
         b_vid = vid.encode()
         answers = total_embeddings[b_vid]
         max_score0, max_score1, max_score2, max_score3, max_score4 = -1.0, -1.0, -1.0, -1.0, -1.0
-        print('len of answers is ', len(answers))
+        # print('len of answers is ', len(answers))
         for item in answers:
             max_score0 = max(max_score0, cosine(item, embeddings0[i]))
             max_score1 = max(max_score1, cosine(item, embeddings1[i]))
