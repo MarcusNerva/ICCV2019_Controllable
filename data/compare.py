@@ -27,9 +27,14 @@ def test(opt, infermodel, embed):
         sentences.append(content1[key])
     embeddings = infermodel.encode(sentences, bsize=128, tokenize=True)
     for i in range(len(embeddings)):
-        if not math.fabs(1.0 - cosine(embed[i + 7010], embeddings[i])) < EPS:
+        temp = infermodel.encode(sentences[i])[0]
+        if not math.fabs(1 - cosine(embeddings0[i], temp)) < EPS:
             print(store[i])
-            print(cosine(embed[i + 7010], embeddings[i]))
+            print(sentences[i])
+            print(cosine(embeddings0[i], temp))
+        # if not math.fabs(1.0 - cosine(embed[i + 7010], embeddings[i])) < EPS:
+        #     print(store[i])
+        #     print(cosine(embed[i + 7010], embeddings[i]))
     # for key in content0:
     #     sentence0 = content0[key].strip()
     #     sentence1 = content1[key].strip()
