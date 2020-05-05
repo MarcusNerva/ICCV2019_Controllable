@@ -33,7 +33,16 @@ if __name__ == '__main__':
     infersent_model.set_w2v_path(W2V_PATH)
     infersent_model.build_vocab_k_words(K=100000)
 
-    store = ['a man is talking about a movie pictures of a movie pictures' for i in range(128)]
+    store = ['a man is talking about a movie pictures of a movie pictures' ,
+             'a person is folding paper',
+             'a man is singing',
+             'people are dancing and dancing',
+             'a man and woman are talking about something',
+             'a woman is applying makeup',
+             'a person is cooking a dish and adding ingredients into a pot',
+             'a man is talking',
+             'a man is talking about the weather on the screen',
+             'cartoon characters are interacting']
     embeddings = infersent_model.encode(store, bsize=128, tokenize=True)
 
     for i in range(128):
