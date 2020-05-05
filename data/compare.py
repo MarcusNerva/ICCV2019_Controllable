@@ -28,10 +28,10 @@ def test(opt, infermodel, embed):
     embeddings = infermodel.encode(sentences, bsize=128, tokenize=True)
     for i in range(len(embeddings)):
         temp = infermodel.encode(sentences[i], bsize=128, tokenize=True)[0]
-        if not math.fabs(1 - cosine(embeddings0[i], temp)) < EPS:
+        if not math.fabs(1 - cosine(embeddings[i], temp)) < EPS:
             print(store[i])
             print(sentences[i])
-            print(cosine(embeddings0[i], temp))
+            print(cosine(embeddings[i], temp))
         # if not math.fabs(1.0 - cosine(embed[i + 7010], embeddings[i])) < EPS:
         #     print(store[i])
         #     print(cosine(embed[i + 7010], embeddings[i]))
