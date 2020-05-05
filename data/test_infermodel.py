@@ -45,7 +45,7 @@ if __name__ == '__main__':
              'cartoon characters are interacting']
     embeddings = infersent_model.encode(store, bsize=128, tokenize=True)
 
-    for i in range(128):
+    for i in range(len(store)):
         temp = infersent_model.encode([store[i]], bsize=128, tokenize=True)[0]
         if math.fabs(1 - cosine(temp, embeddings[i])) > EPS:
             print(cosine(temp, embeddings[i]))
