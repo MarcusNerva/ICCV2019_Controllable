@@ -29,7 +29,7 @@ def test(opt, infermodel, embed):
     for i in range(len(embeddings)):
         if not math.fabs(1.0 - cosine(embed[i + 7010], embeddings[i])) < EPS:
             print(store[i])
-            print(cosine(embed[i], embeddings[i + 7010]))
+            print(cosine(embed[i + 7010], embeddings[i]))
     # for key in content0:
     #     sentence0 = content0[key].strip()
     #     sentence1 = content1[key].strip()
