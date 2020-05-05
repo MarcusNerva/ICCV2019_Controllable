@@ -20,21 +20,19 @@ def test(opt, infermodel, embed):
         content1 = pickle.load(f)
     store = []
     for key in content1:
-        store.append(key)
-    store = sorted(store, key=lambda x: int(x[3:]))
-    sentences = []
-    for key in store:
-        sentences.append(content1[key])
-    embeddings = infermodel.encode(sentences, bsize=128, tokenize=True)
-    for i in range(len(embeddings)):
-        temp = infermodel.encode([sentences[i]], bsize=128, tokenize=True)[0]
-        if not math.fabs(1 - cosine(embeddings[i], temp)) < EPS:
-            print(store[i])
-            print(sentences[i])
-            print(cosine(embeddings[i], temp))
-        # if not math.fabs(1.0 - cosine(embed[i + 7010], embeddings[i])) < EPS:
-        #     print(store[i])
-        #     print(cosine(embed[i + 7010], embeddings[i]))
+        store.append(content1[key])
+    embeddings = infermodel.encode(store, bsize=128, tokenize=True)
+
+    idx = 0
+    for key in content1:
+        sent = content1[key]
+        temp = infermodel.encode([sent], bsize=128, tokenize=True)[0]
+        if math.fabs(1 - cosine(embeddings[idx], temp)) > EPS:
+            print(key)
+            print(sent)
+            print(cosine(embeddings[idx], temp))
+        idx += 1
+
     # for key in content0:
     #     sentence0 = content0[key].strip()
     #     sentence1 = content1[key].strip()
