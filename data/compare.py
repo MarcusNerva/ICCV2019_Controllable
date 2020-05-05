@@ -26,12 +26,11 @@ def test(opt, infermodel, embed):
     idx = 0
     for key in content1:
         sent = content1[key]
-        temp0 = infermodel.encode([sent], bsize=128, tokenize=True)[0]
-        temp1 = infermodel.encode([sent], bsize=128, tokenize=True)[0]
-        if math.fabs(1 - cosine(temp0, temp1)) > EPS:
+        temp = infermodel.encode([sent], bsize=128, tokenize=True)[0]
+        if math.fabs(1 - cosine(temp, embeddings[idx])) > EPS:
             print(key)
             print(sent)
-            print(cosine(temp0, temp1))
+            print(cosine(temp, embeddings[idx]))
         idx += 1
 
     # for key in content0:
