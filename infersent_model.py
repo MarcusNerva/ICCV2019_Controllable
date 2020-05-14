@@ -63,7 +63,9 @@ class InferSent(nn.Module):
         # Handling padding in Recurrent Networks
         sent_packed = nn.utils.rnn.pack_padded_sequence(sent, sent_len_sorted)
         sent_output = self.enc_lstm(sent_packed)[0]  # seqlen x batch x 2*nhid
+        print(sent_output.shape)
         sent_output = nn.utils.rnn.pad_packed_sequence(sent_output)[0]
+        print(sent_output.shape)
 
         # Un-sort by length
         idx_unsort = torch.from_numpy(idx_unsort).cuda() if self.is_cuda() \
@@ -79,6 +81,7 @@ class InferSent(nn.Module):
             if not self.max_pad:
                 sent_output[sent_output == 0] = -1e9
             emb = torch.max(sent_output, 0)[0]
+            print(emb.shape)
             if emb.ndimension() == 3:
                 emb = emb.squeeze(0)
                 assert emb.ndimension() == 2

@@ -43,9 +43,12 @@ if __name__ == '__main__':
              'a man is talking',
              'a man is talking about the weather on the screen',
              'cartoon characters are interacting']
+    # 集体编码
     embeddings = infersent_model.encode(store, bsize=128, tokenize=True)
 
     for i in range(len(store)):
+        # 对第i句话单独编码 成 temp
         temp = infersent_model.encode([store[i]], bsize=128, tokenize=True)[0]
+        # 将单独编码的第i句话和集体编码的第i句话算余弦相似度
         if math.fabs(1 - cosine(temp, embeddings[i])) > EPS:
             print(cosine(temp, embeddings[i]))
