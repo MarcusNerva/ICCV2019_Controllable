@@ -22,7 +22,7 @@ if __name__ == '__main__':
     crit = LanguageModelCriterion()
     classify_crit = ClassifierCriterion()
 
-    model_version = 1
+    model_version = 2
     MODEL_PATH = opt.infersent_model_path
     assert MODEL_PATH is not None, '--infersent_model_path is None!'
     MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)

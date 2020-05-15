@@ -31,7 +31,7 @@ def parse_opt():
                         default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/infersent_encoder/',
                         help='the path of infersent_model')
     parser.add_argument('--w2v_path', type=str,
-                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/Glove/glove.840B.300d.txt',
+                        default='/disks/lilaoshi666/hanhua.ye/ICCV2019_Controllable/fastText/crawl-300d-2M.vec',
                         help='the path of w2v_path')
     parser.add_argument('--feat_K', type=int, default=20,
                         help=' the number of feats(frames) take out from a video')
