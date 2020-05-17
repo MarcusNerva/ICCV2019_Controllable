@@ -63,7 +63,7 @@ def parse_opt():
     parser.add_argument('--model_name', type=str, default='pos', help='name of the model under using')
     parser.add_argument('--load_best_score', type=int, default=0, help='if you want to load previous best score, please input 1. Otherwise input 0.')
 
-    parser.add_argument('--learning_rate', type=float, default=4e-4, help='learning rate')
+    parser.add_argument('--learning_rate', type=float, default=3e-4, help='learning rate')
     parser.add_argument('--learning_rate_decay_start', type=int, default=-1, help='after how many iteration begin learning rate decay')
     parser.add_argument('--learning_rate_decay_every', type=int, default=4, help='for every x iteration learning rate have to decay')
     parser.add_argument('--learning_rate_decay_rate', type=float, default=0.71)
