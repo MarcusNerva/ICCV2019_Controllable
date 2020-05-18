@@ -67,5 +67,5 @@ if __name__ == '__main__':
     with open(prediction_path, 'wb') as f:
         pickle.dump(total_dict, f)
 
-    with open(os.path.join(opt.data_path, 'extracted_test_prediction.pkl'), 'wb') as f:
-        pickle.dump(test_prediction, f)
+    # with open(os.path.join(opt.data_path, 'extracted_test_prediction.pkl'), 'wb') as f:
+    #     pickle.dump(test_prediction, f)
