@@ -45,11 +45,11 @@ def test(opt, infermodel, embed):
 if __name__ == '__main__':
     opt = myopts.parse_opt()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    path0 = os.path.join(opt.data_path, '0.pkl')
-    path1 = os.path.join(opt.data_path, '1.pkl')
-    path2 = os.path.join(opt.data_path, '2.pkl')
-    path3 = os.path.join(opt.data_path, '3.pkl')
-    path4 = os.path.join(opt.data_path, '4.pkl')
+    path0 = os.path.join(opt.data_path, 'whole.pkl')
+    path1 = os.path.join(opt.data_path, 'without_pos.pkl')
+    path2 = os.path.join(opt.data_path, 'without_XGate.pkl')
+    path3 = os.path.join(opt.data_path, 'without_reward.pkl')
+    path4 = os.path.join(opt.data_path, 'without_semantics.pkl')
     total_embeddings_path = os.path.join(opt.data_path, 'sentence_embeddings.pkl')
     # test(opt=opt)
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     with open(total_embeddings_path, 'rb') as f:
         total_embeddings = pickle.load(f)
 
-    model_version = 1
+    model_version = 2
     MODEL_PATH = opt.infersent_model_path
     assert MODEL_PATH is not None, '--infersent_model_path is None!'
     MODEL_PATH = os.path.join(MODEL_PATH, 'infersent%s.pkl' % model_version)
