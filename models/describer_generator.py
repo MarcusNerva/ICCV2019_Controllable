@@ -28,10 +28,10 @@ class Caption_generator(nn.Module):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # utilize XGate mechanism
-        # self.encoder = Encoder_two_fc(opt=opt)
+        self.encoder = Encoder_two_fc(opt=opt)
 
         # do not utilize XGate mechanism
-        self.encoder = Encoder_two_fc_nogate(opt=opt)
+        # self.encoder = Encoder_two_fc_nogate(opt=opt)
 
         # use pos
         self.decoder = Describe_decoder(opt=opt)
